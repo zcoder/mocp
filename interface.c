@@ -2034,6 +2034,7 @@ static void clear_playlist ()
 static void add_dir_plist ()
 {
 	struct menu_item *menu_item = menu_curritem (curr_menu);
+	struct plist plist;
 	char msg[50];
 
 	if (visible_plist == playlist) {
@@ -2053,14 +2054,18 @@ static void add_dir_plist ()
 	}
 
 	set_iface_status_ref ("reading directories...");
-	read_directory_recurr (menu_item->file, playlist);
+	plist_init (&plist);
+	read_directory_recurr (menu_item->file, &plist);
 	if (options_get_int("ReadTags")) {
 		set_iface_status_ref ("Getting tags...");
-		read_tags (playlist);
-		make_titles_tags (playlist);
+		read_tags (&plist);
+		make_titles_tags (&plist);
 	}
 	else
-		make_titles_file (playlist);
+		make_titles_file (&plist);
+
+	plist_sort_fname (&plist);
+	plist_cat (playlist, &plist);
 	
 	if (playlist_menu) {
 		menu_free (playlist_menu);
@@ -2070,6 +2075,7 @@ static void add_dir_plist ()
 	sprintf (msg, "%d files on the list", plist_count(playlist));
 	set_iface_status_ref (msg);
 	wrefresh (info_win);
+	plist_free (&plist);
 }
 
 static void set_mixer (int val)

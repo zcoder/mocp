@@ -1956,7 +1956,7 @@ static void update_menu ()
 	wrefresh (main_win);
 }
 
-/* Handle EV_PLIST_ADD. Free item. */
+/* Handle EV_PLIST_ADD. */
 static void event_plist_add (struct plist_item *item)
 {
 	if (plist_find_fname(playlist, item->file) == -1) {
@@ -1991,9 +1991,6 @@ static void event_plist_add (struct plist_item *item)
 		sprintf (msg, "%d files on the list", plist_count(playlist));
 		set_iface_status_ref (msg);
 	}
-
-	plist_free_item_fields (item);
-	free (item);
 }
 
 /* Switch between the current playlist and the playlist
@@ -2034,7 +2031,7 @@ static void toggle_plist ()
 	wrefresh (info_win);
 }
 
-/* Handle EV_PLIST_DEL. Free file. */
+/* Handle EV_PLIST_DEL. */
 static void event_plist_del (char *file)
 {
 	int item = plist_find_fname (playlist, file);
@@ -2081,8 +2078,6 @@ static void event_plist_del (char *file)
 	else
 		logit ("Server requested deleting an item not present on the"
 				" playlist.");
-
-	free (file);
 }
 
 /* Clear the playlist locally */
@@ -2158,6 +2153,8 @@ static void server_event (const int event, void *data)
 				if (curr_menu == playlist_menu)
 					update_menu ();
 			}
+			plist_free_item_fields (data);
+			free (data);
 			break;
 		case EV_PLIST_CLEAR:
 			if (options_get_int("SyncPlaylist")) {
@@ -2170,6 +2167,7 @@ static void server_event (const int event, void *data)
 				event_plist_del ((char *)data);
 				update_menu ();
 			}
+			free (data);
 			break;
 		default:
 			interface_message ("Unknown event: 0x%02x", event);

@@ -1,11 +1,3 @@
-Before 2.0:
-
-* Only trying to obtain the lock for client socket when sending an event. If
-  this would block, place the event in a queue. This should prevent blocking
-  the decoder when the socket is busy for a longer time period. The queue
-  should be checked and purged after handling the client command.
-* Don't require GCC extensions.
-
 Before 2.1.0:
 
 * Support for multiple clients.

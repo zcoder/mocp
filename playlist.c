@@ -278,14 +278,9 @@ static void do_title_expn (char *dest, int size, char *fmt,
 	int free = --size;
 	short escape = 0;
 
-	if (!*fmt) {
-		dest[0] = 0;
-		return;
-	}
-
 	dest[0] = 0;
 
-	do {
+	while (free > 0 && *fmt) {
 		if (*fmt == '%' && !escape) {
 			check_zero(*++fmt);
 			
@@ -376,7 +371,8 @@ static void do_title_expn (char *dest, int size, char *fmt,
 			--free;
 			escape = 0;
 		}
-	} while (*++fmt && free > 0);
+		fmt++;
+	}
 
 	free = free < 0 ? 0 : free; /* Possible integer overflow? */
 	dest[size - free] = '\0';

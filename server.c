@@ -58,6 +58,8 @@ static int event_queue[10];
 static int nevents = 0;
 static pthread_mutex_t event_queue_mut = PTHREAD_MUTEX_INITIALIZER;
 
+static char err_msg[265] = "";
+
 /* Information about currently played file */
 static struct {
 	int bitrate;
@@ -179,6 +181,13 @@ static int send_data_int (const int data)
 	if (!send_int(client_sock, EV_DATA) || !send_int(client_sock, data))
 		return 0;
 
+	return 1;
+}
+
+/* Send EV_DATA and the string value. Return 0 on error. */
+static int send_data_str (const char *str) {
+	if (!send_int(client_sock, EV_DATA) || !send_str(client_sock, str))
+		return 0;
 	return 1;
 }
 
@@ -307,16 +316,16 @@ static int req_seek ()
 /* Report an error logging it and sending a message to the client. */
 void error (const char *format, ...)
 {
-	char msg[256];
 	va_list va;
 	
 	va_start (va, format);
-	vsnprintf (msg, sizeof(msg), format, va);
-	msg[sizeof(msg) - 1] = 0;
+	vsnprintf (err_msg, sizeof(err_msg), format, va);
+	err_msg[sizeof(err_msg) - 1] = 0;
 	va_end (va);
 
-	logit ("%s", msg);
-	/* FIXME: send EV_ERROR */
+	logit ("ERROR: %s", err_msg);
+
+	add_event (EV_ERROR);
 }
 
 /* Send the song name to the client. Return 0 on error. */
@@ -325,8 +334,7 @@ static int send_sname ()
 	int status = 1;
 	char *sname = audio_get_sname ();
 	
-	if (!send_int(client_sock, EV_DATA) || !send_str(client_sock,
-				sname ? sname : ""))
+	if (!send_data_str(sname ? sname : ""))
 		status = 0;
 	free (sname);
 
@@ -518,6 +526,10 @@ static int handle_command ()
 			break;
 		case CMD_SEND_EVENTS:
 			client_wants_events = 1;
+			break;
+		case CMD_GET_ERROR:
+			if (!send_data_str(err_msg))
+				status = EOF;
 			break;
 		default:
 			logit ("Bad command (0x%x) from the client.", cmd);

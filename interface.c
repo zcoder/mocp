@@ -1639,9 +1639,10 @@ static void do_resize ()
 	mvwin (info_win, LINES - 4, 0);
 	werase (main_win);
 
+	menu_update_size (menu, main_win);
+
 	if (main_win_mode == WIN_MENU) {
 		main_border ();
-		menu_update_size (menu, main_win);
 		menu_draw (menu);
 		update_info_win ();	
 		wrefresh (main_win);

@@ -333,14 +333,16 @@ void buf_time_set (struct buf *buf, const float time)
 	UNLOCK (buf->mutex);
 }
 
-float buf_time_get (struct buf *buf)
+int buf_time_get (struct buf *buf)
 {
-	float time;
+	int time;
 	int bps = audio_get_bps ();
 	
 	LOCK (buf->mutex);
 	time = buf->time - (bps ? buf->hardware_buf_fill / (float)bps : 0);
 	UNLOCK (buf->mutex);
+
+	assert (time >= 0);
 
 	return time;
 }

@@ -42,7 +42,7 @@ void buf_unpause (struct buf *buf);
 void buf_stop (struct buf *buf);
 void buf_reset (struct buf *buf);
 void buf_time_set (struct buf *buf, const float time);
-float buf_time_get (struct buf *buf);
+int buf_time_get (struct buf *buf);
 void buf_set_notify_cond (struct buf *buf, pthread_cond_t *cond,
 		pthread_mutex_t *mutex);
 int buf_get_free (struct buf *buf);

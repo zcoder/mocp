@@ -1647,7 +1647,8 @@ void interface_loop ()
 		ret = select (srv_sock + 1, &fds, NULL, NULL, &timeout);
 		
 		if (ret == 0) {
-			if (msg_timeout && msg_timeout < time(NULL)) {
+			if (msg_timeout && msg_timeout < time(NULL)
+					&& !msg_is_error) {
 				update_info_win ();
 				wrefresh (info_win);
 				msg_timeout = 0;

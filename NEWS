@@ -4,6 +4,7 @@
 	* Fixed segfault when using f after creating a playlist from the
 	  command line.
 	* Fixed invoking MOC with relative path arguments
+	* Fixed displaying file title longer than the window.
 2.0.0
 	* Split into client-server, you can detach the interface and leave
 	  the server playing songs in the background (keys: q - background,

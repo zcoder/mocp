@@ -3364,6 +3364,7 @@ void interface_loop ()
 					ch = meta | META_KEY_FLAG;
 				
 				menu_key (ch);
+				dequeue_events ();
 			}
 
 			if (!want_quit) {

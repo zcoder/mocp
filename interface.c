@@ -1300,7 +1300,6 @@ static void add_dir_plist ()
 	else
 		make_titles_file (playlist);
 	
-	plist_sort_fname (playlist);
 
 	sprintf (msg, "%d files on the list", plist_count(playlist));
 	set_interface_status (msg);

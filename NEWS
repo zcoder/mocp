@@ -1,7 +1,7 @@
 2.1.2
 	* Fixed playing mp3 with UseMmap turned on.
 	* Fixed handling ALSA device open errors.
-	* Proper handling 8, 16, and 24 bit sound, raise error if using
+	* Properly handling 8, 16, and 24 bit sound, raise error if using
 	  anything else.
 	* Fixed a (almost :) deadlock when pressing stop when seeking.
 2.1.1

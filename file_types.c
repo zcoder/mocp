@@ -144,7 +144,7 @@ void file_types_init ()
 	add_ext (i, "wav");
 
 	i = add_type (1, "AIF", sndfile_get_funcs());
-	add_ext (i, "aif");
+	add_ext (i, "aiff");
 
 	i = add_type (1, "SVX", sndfile_get_funcs());
 	add_ext (i, "8svx");

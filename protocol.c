@@ -432,31 +432,29 @@ struct plist_item *recv_item (int sock)
 			return NULL;
 		}
 
-		if (*title || *artist || *album || track != -1 || time != -1) {
+		/* Set NULL instead of empty tags. */
+		if (!title[0]) {
+			free (title);
+			title = NULL;
+		}
+		if (!artist[0]) {
+			free (artist);
+			artist = NULL;
+		}
+		if (!album[0]) {
+			free (album);
+			album = NULL;
+		}
+
+		if (title || artist || album || track != -1 || time != -1) {
 			item->tags = tags_new ();
 
-			if (*title || *artist || *album) {
+			if (title || artist || album) {
 				item->tags->filled |= TAGS_COMMENTS;
 
-				if (*title)
-					item->tags->title = title;
-				else
-					free (title);
-				
-				if (*artist)
-					item->tags->artist = artist;
-				else
-					free (artist);
-				
-				if (*album)
-					item->tags->album = album;
-				else
-					free (album);
-			}
-			else {
-				free (title);
-				free (artist);
-				free (album);
+				item->tags->title = title;
+				item->tags->artist = artist;
+				item->tags->album = album;
 			}
 			
 			if (time != -1) {
@@ -465,11 +463,6 @@ struct plist_item *recv_item (int sock)
 			}
 
 			item->tags->track = track;
-		}
-		else {
-			free (title);
-			free (artist);
-			free (album);
 		}
 	}
 	

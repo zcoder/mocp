@@ -1930,6 +1930,7 @@ void init_interface (const int sock, const int debug, char **args,
 		
 		/* We have made the playlist from command line. */
 		
+		send_int_to_srv (CMD_LOCK);
 		send_int_to_srv (CMD_CLI_PLIST_CLEAR);
 
 		/* the playlist should be now clear, but this will give us
@@ -1941,7 +1942,6 @@ void init_interface (const int sock, const int debug, char **args,
 	
 		/* Assign the server's playlist different id, we don't
 		 * want to stop playing from the old playlist. */
-		send_int_to_srv (CMD_LOCK);
 		send_int_to_srv (CMD_PLIST_GET_SERIAL);
 		if (get_data_int() == plist_get_serial(playlist)) {
 			int serial;
@@ -1951,9 +1951,9 @@ void init_interface (const int sock, const int debug, char **args,
 			send_int_to_srv (CMD_PLIST_SET_SERIAL);
 			send_int_to_srv (serial);
 		}
-		send_int_to_srv (CMD_UNLOCK);
 
 		send_all_items (playlist);
+		send_int_to_srv (CMD_UNLOCK);
 	}
 	
 	send_int_to_srv (CMD_SEND_EVENTS);
@@ -2302,8 +2302,10 @@ static void go_file ()
 			interface_message ("Playlist loaded.");
 		
 		if (options_get_int("SyncPlaylist")) {
+			send_int_to_srv (CMD_LOCK);
 			send_int_to_srv (CMD_CLI_PLIST_CLEAR);
 			send_all_items (playlist);
+			send_int_to_srv (CMD_UNLOCK);
 		}
 
 		set_iface_status_ref (NULL);
@@ -2427,8 +2429,11 @@ static void add_dir_plist ()
 		send_playlist (&plist, 0);
 	send_int_to_srv (CMD_UNLOCK);
 
-	if (options_get_int("SyncPlaylist"))
+	if (options_get_int("SyncPlaylist")) {
+		send_int_to_srv (CMD_LOCK);
 		send_all_items (&plist);
+		send_int_to_srv (CMD_UNLOCK);
+	}
 	
 	if (playlist_menu) {
 		menu_free (playlist_menu);

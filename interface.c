@@ -1142,14 +1142,15 @@ static void update_ctime ()
 	send_int_to_srv (CMD_GET_CTIME);
 	ctime = get_data_int ();
 
-	sec_to_min (file_info.curr_time, ctime);
-
 	if (file_info.time_num != -1) {
+		sec_to_min (file_info.curr_time, ctime);
 		left = file_info.time_num - ctime;
 		sec_to_min (file_info.time_left, left > 0 ? left : 0);
 	}
-	else
+	else {
+		strcpy (file_info.curr_time, "00:00");
 		file_info.time_left[0] = 0;
+	}
 
 	update_info_win ();
 	wrefresh (info_win);

@@ -149,6 +149,7 @@ static int ogg_decode (void *void_data, char *buf, int buf_len,
 	int ret;
 	int current_section;
 	int bitrate;
+	vorbis_info *info;
 
 	while (1) {
 		ret = ov_read(&data->vf, buf, buf_len, 0, 2, 1,
@@ -162,17 +163,16 @@ static int ogg_decode (void *void_data, char *buf, int buf_len,
 		}
 		
 		if (current_section != data->last_section) {
-			vorbis_info *info;
-
 			logit ("section change or first section");
 			
 			data->last_section = current_section;
-			info = ov_info (&data->vf, -1);
-			assert (info != NULL);
-			sound_params->channels = info->channels;
-			sound_params->rate = info->rate;
-			sound_params->format = 2;
 		}
+
+		info = ov_info (&data->vf, -1);
+		assert (info != NULL);
+		sound_params->channels = info->channels;
+		sound_params->rate = info->rate;
+		sound_params->format = 2;
 
 		/* Update the bitrate information */
 		bitrate = ov_bitrate_instant (&data->vf);

@@ -1396,7 +1396,8 @@ static void switch_read_tags ()
 	else
 	{
 		update_menu_titles (menu, playlist);
-		update_menu_titles (saved_menu, curr_plist);
+		if (saved_menu)
+			update_menu_titles (saved_menu, curr_plist);
 	}
 	update_curr_file ();
 }

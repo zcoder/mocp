@@ -2283,23 +2283,33 @@ static void go_file ()
 			return;
 		}
 
-		/* TODO: what if SyncPlayli is off? !!!! */
+		plist_clear (playlist);
 
-		send_int_to_srv (CMD_LOCK);
 		set_iface_status_ref ("Loading playlist...");
 		if (plist_load(playlist, menu_item_get_file(curr_menu,
-						selected), cwd))
+						selected), cwd)) {
 			interface_message ("Playlist loaded.");
 		
-		if (options_get_int("SyncPlaylist")) {
-			change_srv_plist_serial ();
-			send_int_to_srv (CMD_CLI_PLIST_CLEAR);
-			set_iface_status_ref ("Notifying clients...");
-			send_all_items (playlist);
-			set_iface_status_ref (NULL);
-			waiting_for_plist_load = 1;
+			if (options_get_int("SyncPlaylist")) {
+				send_int_to_srv (CMD_LOCK);
+				change_srv_plist_serial ();
+				send_int_to_srv (CMD_CLI_PLIST_CLEAR);
+				set_iface_status_ref ("Notifying clients...");
+				send_all_items (playlist);
+				set_iface_status_ref (NULL);
+				waiting_for_plist_load = 1;
+				send_int_to_srv (CMD_UNLOCK);
+
+				/* We'll use the playlist received from the
+				 * server to be synchronized with other clients
+				 */
+				plist_clear (playlist);
+			}
+			else
+				toggle_plist ();
 		}
-		send_int_to_srv (CMD_UNLOCK);
+		else
+			interface_message ("The playlist is empty");
 
 		set_iface_status_ref (NULL);
 	}

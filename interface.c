@@ -1281,6 +1281,11 @@ static void add_dir_plist ()
 		return;
 	}
 
+	if (menu->selected == 0) {
+		interface_error ("Can't add '..'.");
+		return;
+	}
+
 	strcpy (dir, cwd);
 	resolve_path (dir, sizeof(dir), menu_item->title);
 

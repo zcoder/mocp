@@ -99,12 +99,11 @@ AC_TRY_COMPILE([#include <stdarg.h>],
 			  [Define if we have __attribute__ extension])])
 
 dnl ncurses
-AC_CHECK_LIB(ncurses, initscr, [
-	AC_CHECK_HEADER([ncurses.h],, [
-		AC_MSG_ERROR([You nedd ncurses header file.])])
-	],
-	[AC_MSG_ERROR([You need ncurses library.])]
-)
+MP_WITH_CURSES
+if test -a "$CURSES_LIB"
+then
+		AC_MSG_ERROR([You need curses/ncurses library and header files.])
+fi
 
 AC_ARG_WITH(mp3, AS_HELP_STRING(--without-mp3,Compile without mp3 support (libmad)))
 
@@ -190,7 +189,7 @@ then
 			   [true])
 fi
 
-LIBS="$LIBS -lncurses"
+LIBS="$LIBS $CURSES_LIB"
 		
 AC_OUTPUT(Makefile \
 	  themes/Makefile)

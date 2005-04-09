@@ -149,19 +149,13 @@ fi
 dnl vorbis
 COMPILE_VORBIS="no"
 AC_ARG_WITH(ogg, AS_HELP_STRING(--without-ogg,Compile without OGG support.))
-
 if test "x$with_ogg" != "xno"
 then
- 	AC_CHECK_LIB(vorbis, ov_open, [LIBS="$LIBS -lvorbis -lvorbisfile"],
- 		     [AC_MSG_RESULT([no])], [-lvorbisfile])
- 	if test "$ac_cv_lib_vorbis_ov_open" = yes
- 	then
- 		AC_CHECK_HEADER([vorbis/vorbisfile.h],,
- 				[AC_MSG_ERROR([You need vorbis header files to compile with ogg support, check the README file.])])
- 		AC_DEFINE([HAVE_VORBIS], 1, [Define if you want ogg support])
- 		COMPILE_VORBIS="yes"
- 		EXTRA_OBJS="$EXTRA_OBJS ogg.o"
-	fi
+	PKG_CHECK_MODULES(OGG_VORBIS, [ogg >= 1.0 vorbis >= 1.0 vorbisfile >= 1.0],
+			  [AC_SUBST(OGG_VORBIS_LIBS)
+			  COMPILE_VORBIS="yes"
+			  LIBS="$LIBS $OGG_VORBIS_LIBS"
+			  EXTRA_OBJS="$EXTRA_OBJS ogg.o"])
 fi
 
 dnl FLAC

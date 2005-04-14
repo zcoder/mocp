@@ -175,7 +175,7 @@ COMPILE_SNDFILE="no"
 AC_ARG_WITH(sndfile, AS_HELP_STRING(--without-sndfile,
 	    Compile without libsndfile))
 
-if test "x$withsndfile" != "xno"
+if test "x$with_sndfile" != "xno"
 then
 	PKG_CHECK_MODULES(sndfile, sndfile >= 1.0.0,
 			   [AC_DEFINE([HAVE_SNDFILE], 1,

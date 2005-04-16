@@ -155,6 +155,7 @@ then
 			  [AC_SUBST(OGG_VORBIS_LIBS)
 			  COMPILE_VORBIS="yes"
 			  LIBS="$LIBS $OGG_VORBIS_LIBS"
+			  AC_DEFINE([HAVE_VORBIS], 1, [Define if you want ogg vorbis support])
 			  EXTRA_OBJS="$EXTRA_OBJS ogg.o"])
 fi
 

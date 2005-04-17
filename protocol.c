@@ -197,7 +197,8 @@ int send_time (int sock, time_t i)
 /* Add a string to the dynamicaly allocated buffer which has aready len bytes
  * data and is allocated big. Returns the pointer to the buffer which may be not
  * the same as buf. */
-static char *add_buf_str (char *buf, size_t *len, int *allocated, const char *str)
+static char *add_buf_str (char *buf, size_t *len, size_t *allocated,
+		const char *str)
 {
 	int str_len = strlen(str);
 	size_t needed_space = str_len * sizeof(char) + sizeof(int);
@@ -218,7 +219,8 @@ static char *add_buf_str (char *buf, size_t *len, int *allocated, const char *st
 /* Add an integerg to the dynamicaly allocated buffer which has aready len bytes
  * data and is allocated big. Returns the pointer to the buffer which may be not
  * the same as buf. */
-static char *add_buf_int (char *buf, size_t *len, int *allocated, const int n)
+static char *add_buf_int (char *buf, size_t *len, size_t *allocated,
+		const int n)
 {
 	if (*allocated - *len < (int)sizeof(n)) {
 		*allocated *= 2;
@@ -234,9 +236,10 @@ static char *add_buf_int (char *buf, size_t *len, int *allocated, const int n)
 /* Add a long to the dynamicaly allocated buffer which has aready len bytes
  * data and is allocated big. Returns the pointer to the buffer which may be not
  * the same as buf. */
-static char *add_buf_long (char *buf, size_t *len, int *allocated, const int n)
+static char *add_buf_long (char *buf, size_t *len, size_t *allocated,
+		const int n)
 {
-	if (*allocated - *len < (int)sizeof(n)) {
+	if (*allocated - *len < sizeof(n)) {
 		*allocated *= 2;
 		buf = xrealloc (buf, *allocated);
 	}
@@ -250,9 +253,10 @@ static char *add_buf_long (char *buf, size_t *len, int *allocated, const int n)
 /* Add a time_t to the dynamicaly allocated buffer which has aready len bytes
  * data and is allocated big. Returns the pointer to the buffer which may be not
  * the same as buf. */
-static char *add_buf_time (char *buf, size_t *len, int *allocated, const time_t t)
+static char *add_buf_time (char *buf, size_t *len, size_t *allocated,
+		const time_t t)
 {
-	if (*allocated - *len < (int)sizeof(t)) {
+	if (*allocated - *len < sizeof(t)) {
 		*allocated *= 2;
 		buf = xrealloc (buf, *allocated);
 	}

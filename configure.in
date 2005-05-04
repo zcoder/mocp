@@ -156,7 +156,8 @@ then
 			  COMPILE_VORBIS="yes"
 			  LIBS="$LIBS $OGG_VORBIS_LIBS"
 			  AC_DEFINE([HAVE_VORBIS], 1, [Define if you want ogg vorbis support])
-			  EXTRA_OBJS="$EXTRA_OBJS ogg.o"])
+			  EXTRA_OBJS="$EXTRA_OBJS ogg.o"],
+			  [true])
 fi
 
 dnl FLAC

@@ -352,6 +352,15 @@ int buf_time_get (struct buf *buf)
 	return time;
 }
 
+/* Wait until the buffer thread is waiting for the data. */
+static void buf_wait (struct buf *buf)
+{
+	LOCK (buf->mutex);
+	while (buf->fill)
+		pthread_cond_wait (&buf->ready_cond, &buf->mutex);
+	UNLOCK (buf->mutex);
+}
+
 void buf_set_notify_cond (struct buf *buf, pthread_cond_t *cond,
 		pthread_mutex_t *mutex)
 {

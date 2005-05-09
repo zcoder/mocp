@@ -79,7 +79,7 @@ static size_t pack_pcm_signed (FLAC__byte *data,
 
 			switch(bps) {
 				case 8:
-					data[0] = sample ^ 0x80;
+					data[0] = sample;
 					break;
 
 #ifdef WORDS_BIGENDIAN

@@ -357,6 +357,7 @@ void buf_set_notify_cond (struct buf *buf, pthread_cond_t *cond,
 {
 	assert (buf != NULL);
 	
+	buf_wait (buf);
 	buf->opt_cond = cond;
 	buf->opt_cond_mutex = mutex;
 }

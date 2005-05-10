@@ -352,23 +352,21 @@ int buf_time_get (struct buf *buf)
 	return time;
 }
 
-/* Wait until the buffer thread is waiting for the data. */
-static void buf_wait (struct buf *buf)
-{
-	LOCK (buf->mutex);
-	while (buf->fill)
-		pthread_cond_wait (&buf->ready_cond, &buf->mutex);
-	UNLOCK (buf->mutex);
-}
-
 void buf_set_notify_cond (struct buf *buf, pthread_cond_t *cond,
 		pthread_mutex_t *mutex)
 {
 	assert (buf != NULL);
 	
-	buf_wait (buf);
+	LOCK (buf->mutex);
+
+	/* wait untill the read thread is not doing anything */
+	while (buf->fill)
+		pthread_cond_wait (&buf->ready_cond, &buf->mutex);
+	
 	buf->opt_cond = cond;
 	buf->opt_cond_mutex = mutex;
+
+	UNLOCK (buf->mutex);
 }
 
 int buf_get_free (struct buf *buf)

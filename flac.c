@@ -215,6 +215,8 @@ static void flac_close (void *void_data)
 
 	FLAC__file_decoder_finish (data->decoder);
 	FLAC__file_decoder_delete (data->decoder);
+
+	free (data);
 }
 
 static void fill_tag (FLAC__StreamMetadata_VorbisComment_Entry *comm,

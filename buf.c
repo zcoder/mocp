@@ -352,21 +352,14 @@ int buf_time_get (struct buf *buf)
 	return time;
 }
 
+/* Setting this more than once can lead to race dconditions. */
 void buf_set_notify_cond (struct buf *buf, pthread_cond_t *cond,
 		pthread_mutex_t *mutex)
 {
 	assert (buf != NULL);
 	
-	LOCK (buf->mutex);
-
-	/* wait untill the read thread is not doing anything */
-	while (buf->fill)
-		pthread_cond_wait (&buf->ready_cond, &buf->mutex);
-	
 	buf->opt_cond = cond;
 	buf->opt_cond_mutex = mutex;
-
-	UNLOCK (buf->mutex);
 }
 
 int buf_get_free (struct buf *buf)

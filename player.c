@@ -323,7 +323,6 @@ void player (char *file, char *next_file, struct buf *out_buf)
 	}
 
 	f->close (decoder_data);
-	buf_set_notify_cond (out_buf, NULL, NULL);
 	logit ("exiting");
 }
 

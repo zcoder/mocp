@@ -291,6 +291,9 @@ static void *mp3_open (const char *file)
 	mad_stream_init (&data->stream);
 	mad_frame_init (&data->frame);
 	mad_synth_init (&data->synth);
+
+	if (options_get_int("Mp3IgnoreCRCErrors"))
+		mad_stream_options (&data->stream, MAD_OPTION_IGNORECRC);
 	
 #ifdef HAVE_MMAP
 	if (options_get_int("UseMmap")) {

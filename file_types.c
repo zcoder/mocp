@@ -116,9 +116,10 @@ void file_types_init ()
 	int i;
 	
 #ifdef HAVE_MAD
-	i = add_type (3, "MP3", mp3_get_funcs());
+	i = add_type (4, "MP3", mp3_get_funcs());
 	add_ext (i, "mp3");
 	add_ext (i, "mp2");
+	add_ext (i, "mp1");
 	add_ext (i, "mpga");
 #endif
 

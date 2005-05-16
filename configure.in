@@ -153,6 +153,7 @@ if test "x$with_ogg" != "xno"
 then
 	PKG_CHECK_MODULES(OGG_VORBIS, [ogg >= 1.0 vorbis >= 1.0 vorbisfile >= 1.0],
 			  [AC_SUBST(OGG_VORBIS_LIBS)
+			  CFLAGS="$CFLAGS $OGG_VORBIS_CFLAGS"
 			  COMPILE_VORBIS="yes"
 			  LIBS="$LIBS $OGG_VORBIS_LIBS"
 			  AC_DEFINE([HAVE_VORBIS], 1, [Define if you want ogg vorbis support])

@@ -1,12 +1,12 @@
 Items marked with $ are bigger changes requiring more time.
 
-Known bugs:
-* Freez when switching songs quickly.
-* ./mocp -p can crash
-
 Before 2.4:
 * Better plist_count() optimizations: decrease and increase time for
   deleted/added files instead of recounting total time.
+*$ Read tags in the server in a separate part, interface should not wait
+  for the tags, the will be send if available (to all clients? cache for tags
+  at the server part?). 
+*$ Move interface primitives (windows, entry, etc.) to a separate file.
 * Optimize menu: store it on a list, not in a table: this should improve
   performance when deleting items.
 * Count speex time by reading granule position from the last page.
@@ -16,20 +16,17 @@ Before 2.4:
   are visible (as an option).
 *$ Support for Audio-CD.
 *$ Support for CDDB.
+*$ WMA.
 * Move the playlist to see the song that is currently played.
+* Full paths for items on the playlist (not only file names).
 
 In future:
 
 * Ability to play from a playlist made of items found after searching.
 * JACK: intelligent bahaviour when we get disconnected from the server
   - detect it, try connect and exit if it fails.
-*$ WMA.
-*$ Move interface primitives (windows, entry, etc.) to a separate file.
 * FastGo instead of FastDir: go to a directory, URL or a playlist.
 * Read tags for sndfile formats.
-*$ Read tags in the server in a separate part, interface should not wait
-  for the tags, the will be send if available (to all clients? cache for tags
-  at the server part?). 
 *$ Cache for tags in each directory. (.cache.m3u?)
 *$ http://www.peercast.org/
 * Number items on the playlist.

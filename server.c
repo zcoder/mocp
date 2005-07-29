@@ -213,8 +213,8 @@ static int client_unlock (struct client *cli)
 
 static void del_client (struct client *cli)
 {
-	cli->socket = -1;
 	struct event *e;
+	cli->socket = -1;
 
 	/* Free the event queue - we can't just use event_queue_free(), because
 	 * it can't free() the event's data. */

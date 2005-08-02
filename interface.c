@@ -1280,9 +1280,12 @@ static char *find_title (char *file)
 			file_info.tags = get_tags_from_srv ();
 		}
 		
-		if (file_info.tags && file_info.curr_file
+		if (file_info.tags && file_info.tags->title
+				&& file_info.curr_file
 				&& !strcmp(file_info.curr_file, file))
 			title = iconv_str (build_title(file_info.tags), 0);
+		else
+			title = xstrdup (file);
 
 		return title;
 	}

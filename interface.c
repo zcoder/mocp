@@ -3156,6 +3156,7 @@ static int history_add (char *history[HISTORY_MAX], int history_len,
 		history[history_len++] = xstrdup (text);
 	}
 	else {
+		free (history[0]);
 		memmove (history, history + 1,
 				(HISTORY_MAX - 1) * sizeof(char *));
 		history[history_len] = xstrdup (text);

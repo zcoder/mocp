@@ -3040,7 +3040,7 @@ static int entry_plist_save_key (const int ch)
 
 			if (file_exists(file)) {
 				make_entry (ENTRY_PLIST_OVERWRITE,
-						"File exists, owerwrite?");
+						"File exists, overwrite?");
 				entry.file = file;
 			}
 			else {

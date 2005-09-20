@@ -236,7 +236,7 @@ static void rb_insert (struct rb_node **root, const struct plist *plist,
 	
 	while (x != &rb_null) {
 		y = x;
-		if (strcmp(plist->items[z->item_num].file,
+		if (strcoll(plist->items[z->item_num].file,
 					plist->items[x->item_num].file) < 0)
 			x = x->left;
 		else
@@ -247,7 +247,7 @@ static void rb_insert (struct rb_node **root, const struct plist *plist,
 	if (y == &rb_null)
 		*root = z;
 	else {
-		if (strcmp(plist->items[z->item_num].file,
+		if (strcoll(plist->items[z->item_num].file,
 					plist->items[y->item_num].file)	< 0)
 			y->left = z;
 		else
@@ -278,7 +278,7 @@ static struct rb_node *rb_search_internal (struct rb_node *root,
 	struct rb_node *x = root;
 
 	while (x != &rb_null) {
-		int cmp = strcmp (file, plist->items[x->item_num].file);
+		int cmp = strcoll (file, plist->items[x->item_num].file);
 		
 		if (cmp < 0)
 			x = x->left;

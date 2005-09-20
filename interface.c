@@ -962,12 +962,12 @@ static int qsort_dirs_func (const void *a, const void *b)
 		return -1;
 	if (!strcmp(sb, "../"))
 		return 1;
-	return strcmp (sa, sb);
+	return strcoll (sa, sb);
 }	
 
 static int qsort_strcmp_func (const void *a, const void *b)
 {
-	return strcmp (*(char **)a, *(char **)b);
+	return strcoll (*(char **)a, *(char **)b);
 }
 
 /* Get the file time from the server. */

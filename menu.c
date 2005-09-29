@@ -421,7 +421,7 @@ struct menu *menu_filter_pattern (struct menu *menu, const char *pattern)
 	for (i = 0; i < menu->nitems; i++) {
 		struct menu_item *item = &menu->items[i];
 		
-		if ((item->type == F_SOUND || item->type == F_URL)
+		if ((item->type == F_SOUND || item->type == F_URL || item->type == F_DIR)
 				&& strcasestr(menu->items[i].title, pattern)) {
 			int added = menu_add_from_item (new, item);
 			

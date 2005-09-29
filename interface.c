@@ -2992,6 +2992,10 @@ static int entry_search_key (const int ch)
 		menu_driver (curr_menu, REQ_TOP);
 	else if (cmd == KEY_CMD_MENU_LAST)
 		menu_driver (curr_menu, REQ_BOTTOM);
+	else if (cmd == KEY_CMD_HISTORY_UP)
+		menu_driver (curr_menu, REQ_UP);
+	else if (cmd == KEY_CMD_HISTORY_DOWN)
+		menu_driver (curr_menu, REQ_DOWN);
 	else if (ch == '\n' || cmd == KEY_CMD_CANCEL || ch == -1) {
 		entry_disable ();
 		update_info_win ();
@@ -2999,8 +3003,11 @@ static int entry_search_key (const int ch)
 		
 		if (ch == '\n' && entry.text[0] && menu_nitems(curr_menu))
 			go_file ();
-
-		if (old_curr_menu) {
+		int selected = menu_curritem(curr_menu);
+		if ((selected < 0 && old_curr_menu) ||
+			(curr_menu->nitems<=selected && old_curr_menu) || 
+			(old_curr_menu && (menu_item_get_type(curr_menu, selected))!=F_DIR)) 
+		{
 			
 			/* restore the original menu */
 			menu_free (curr_menu);
@@ -3009,7 +3016,9 @@ static int entry_search_key (const int ch)
 			curr_menu = old_curr_menu;
 			old_curr_menu = NULL;
 		}
-		
+		else{
+			old_curr_menu = NULL;
+		}	
 		update_curr_file ();
 	}
 

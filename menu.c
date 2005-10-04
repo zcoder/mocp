@@ -486,9 +486,8 @@ void menu_item_set_time_plist (struct menu *menu, const int plist_num,
 	assert (menu != NULL);
 	
 	i = find_item_plist (menu, plist_num);
-	assert (i != -1);
-	
-	menu_item_set_time (menu, i, time);
+	if (i != -1)
+		menu_item_set_time (menu, i, time);
 }
 
 void menu_item_set_format (struct menu *menu, const int num,

@@ -253,7 +253,8 @@ int check_str_option (const char *name, const char *val)
 				&& strcasecmp(val, "IfAvailable"))
 			return 0;
 	}
-	else if (!strcasecmp(name, "TagsIconv")) {
+	else if (!strcasecmp(name, "TagsIconv")
+			|| !strcasecmp(name, "FileNamesIconv")) {
 		char *colon;
 
 		/* simple check if val is FORMAT1:FORMAT2 */

@@ -3958,6 +3958,11 @@ void interface_loop ()
 				
 				clear_interrupt ();
 
+
+				/* Workaround for backspace on many terminals */
+				if (ch == 0x7f)
+					ch = KEY_BACKSPACE;
+
 				/* Recognize meta sequences */
 				if (ch == KEY_ESCAPE
 						&& (meta = wgetch(main_win))

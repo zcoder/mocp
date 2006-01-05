@@ -1052,6 +1052,7 @@ static void add_to_menu (struct menu *menu, struct plist *plist, const int num)
 	int added;
 	struct plist_item *item = &plist->items[num];
 	char *title = xstrdup (item->title);
+	const char *type_name;
 
 	if (item->title == item->title_tags)
 		title = iconv_str (title, 0);
@@ -1077,7 +1078,9 @@ static void add_to_menu (struct menu *menu, struct plist *plist, const int num)
 	menu_item_set_attr_sel_marked (menu, added,
 			get_color(CLR_MENU_ITEM_FILE_MARKED_SELECTED));
 	
-	menu_item_set_format (menu, added, file_type_name(item->file));
+	if (!(type_name = file_type_name(item->file)))
+		type_name = "";
+	menu_item_set_format (menu, added, type_name);
 }
 
 /* Make menu using the playlist and directory table. */

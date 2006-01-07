@@ -377,6 +377,7 @@ AC_OUTPUT([Makefile
 	  decoder_plugins/sndfile/Makefile
 	  decoder_plugins/speex/Makefile
 	  decoder_plugins/musepack/Makefile
+	  moc.spec
 	  ])
 
 echo

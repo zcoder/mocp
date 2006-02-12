@@ -4,15 +4,9 @@ Known bugs:
 - Must try other sample rates in ALSA if the rate is not supported
   (http://moc.daper.net/node/114)
 
-Before 2.5:
-* Move TODO to moc.daper.net/roadmap
-* Options in a hash table.
-* A string-valued variable "TitleFormatString", similar to "FormatString".
-  I'd suggest all the same %-escapes, plus:
-  %F -- expands to (the expansion of) the current FormatString
-  if there is a song playing or paused, and empty string if stopped.
-  %S --  expands to play/stop/pause.
-* -i shows also the average bitrate.
+--------------------------------------------------------------------------------
+For more complete TODO list, see http://moc.daper.net/roadmap
+--------------------------------------------------------------------------------
 
 In future:
 

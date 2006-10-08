@@ -1,8 +1,16 @@
 Items marked with $ are bigger changes requiring more time.
 
 Known bugs:
-- Must try other sample rates in ALSA if the rate is not supported
-  (http://moc.daper.net/node/114)
+- ESC is not working.
+- Repeat is not working properly. http://moc.daper.net/node/124
+- RCC should be used for file names. http://moc.daper.net/node/116
+- Do we assume filesystem in UTF-8? It's incorrect.
+- lock up when seeking backward
+- I have a problem with moc 2.4.0 on FreeBSD 6.1-PRERELEASE. When I build moc
+  with musepack (libmpcdec) support moc allways core dumps on exit.
+- Crash on FreeBSD 5.5 http://moc.daper.net/node/148
+- When sorting by file name (directories), put files beggining with a
+  non alphanuemric character at the top.
 
 --------------------------------------------------------------------------------
 For more complete TODO list, see http://moc.daper.net/roadmap

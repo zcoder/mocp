@@ -216,6 +216,7 @@ void options_init ()
 	option_add_int ("UseRCC", 1);
 	option_add_int ("SetXtermTitle", 1);
 	option_add_int ("PlaylistFullPaths", 1);
+	option_add_int ("Allow24bitOutput", 0);
 }
 
 /* Return 1 if a parameter to an integer option is valid. */
@@ -241,6 +242,7 @@ int check_int_option (const char *name, const int val)
 			|| !strcasecmp(name, "UseRCC")
 			|| !strcasecmp(name, "SetXtermTitle")
 			|| !strcasecmp(name, "PlaylistFullPaths")
+			|| !strcasecmp(name, "Allow24bitOutput")
 			) {
 		if (!(val == 1 || val == 0))
 			return 0;

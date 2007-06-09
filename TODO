@@ -1,7 +1,6 @@
 Items marked with $ are bigger changes requiring more time.
 
 Known bugs:
-- ESC is not working.
 - Repeat is not working properly. http://moc.daper.net/node/124
 - RCC should be used for file names. http://moc.daper.net/node/116
 - Do we assume filesystem in UTF-8? It's incorrect.

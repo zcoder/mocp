@@ -84,8 +84,17 @@ static pthread_mutex_t request_cond_mutex = PTHREAD_MUTEX_INITIALIZER;
 static enum request request = REQ_NOTHING;
 static int req_seek;
 
+/* Source of the played stream tags. */
+static enum
+{
+	TAGS_SOURCE_DECODER,	/* tags from the stream (eg. id3tags, vorbis comments) */
+	TAGS_SOURCE_METADATA	/* tags from icecast metadata */
+} tags_source;
+
 /* Tags of the currentply played file. */
 static struct file_tags *curr_tags = NULL;
+
+/* Mutex for curr_tags and tags_source. */
 static pthread_mutex_t curr_tags_mut = PTHREAD_MUTEX_INITIALIZER;
 
 /* Stream associated with the currently playing decoder. */
@@ -369,19 +378,25 @@ static void update_tags (const struct decoder *f, void *decoder_data,
 		tags_changed = 1;
 		tags_copy (curr_tags, new_tags);
 		logit ("Tags change from the decoder");
+		tags_source = TAGS_SOURCE_DECODER;
 		show_tags (curr_tags);
 	}
-	else if (s && (stream_title = io_get_metadata_title(s))
-			&& (!curr_tags->title
-				|| strcmp(stream_title, curr_tags->title))) {
-		logit ("New io stream tags");
-		tags_clear (curr_tags);
-		curr_tags->title = stream_title;
-		show_tags (curr_tags);
-		tags_changed = 1;
+	else if (s && (stream_title = io_get_metadata_title(s))) {
+		if (curr_tags && curr_tags->title
+				&& tags_source == TAGS_SOURCE_DECODER) {
+			logit ("New io stream tags, ignored because there are "
+					" decoder tags present.");
+			free (stream_title);
+		}
+		else {
+			tags_clear (curr_tags);
+			curr_tags->title = stream_title;
+			show_tags (curr_tags);
+			tags_changed = 1;
+			logit ("New IO stream tags");
+			tags_source = TAGS_SOURCE_METADATA;
+		}
 	}
-	else if (stream_title)
-		free (stream_title);
 
 	if (tags_changed)
 		tags_change ();

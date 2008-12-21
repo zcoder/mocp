@@ -428,12 +428,12 @@ int plist_find_del_fname (const struct plist *plist, const char *file)
 
 static char *title_expn_subs(char fmt, const struct file_tags *tags)
 {
-	static char track[10];
+	static char track[16];
 	
 	switch (fmt) {
 		case 'n':
 			if (tags->track != -1) {
-				sprintf (track, "%d", tags->track);
+				snprintf (track, sizeof(track), "%d", tags->track);
 				return track;
 			}
 			return NULL;

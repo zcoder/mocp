@@ -40,8 +40,6 @@ mocp_SOURCES = log.c \
 	       themes.h \
 	       keys.c \
 	       keys.h \
-	       ltdl.c \
-	       ltdl.h \
 	       io.c \
 	       io.h \
 	       compat.c \
@@ -68,7 +66,7 @@ EXTRA_mocp_SOURCES = gnugetopt.h \
 		     jack.c \
 		     jack.h
 man_MANS = mocp.1
-mocp_LDADD = @EXTRA_OBJS@
+mocp_LDADD = @EXTRA_OBJS@ -lltdl
 mocp_DEPENDENCIES = @EXTRA_OBJS@
 mocp_LDFLAGS = @EXTRA_LIBS@
 EXTRA_DIST = config.example mocp.1 THANKS keymap.example Doxyfile \

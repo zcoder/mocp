@@ -2512,6 +2512,12 @@ static void info_win_set_played_title (struct info_win *w, const char *title)
 {
 	assert (w != NULL);
 
+	if (!w->title && !title)
+		return;
+
+	if (w->title && title && !strcmp(w->title, title))
+		return;
+
 	if (w->title)
 		free (w->title);
 	w->title = xstrdup (title);

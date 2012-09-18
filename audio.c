@@ -60,6 +60,7 @@
 #include "files.h"
 #include "io.h"
 #include "audio_conversion.h"
+#include "cue_sheet_file.h"
 
 static pthread_t playing_thread = 0;  /* tid of play thread */
 static int play_thread_running = 0;
@@ -421,37 +422,40 @@ static void *play_thread (void *unused ATTR_UNUSED)
 {
 	logit ("Entering playing thread");
 
-	while (curr_playing != -1) {
-		char *file;
+	while (curr_playing != -1) 
+    {
+		char *file = NULL;
+		char *item_name = NULL;
 
 		LOCK (plist_mut);
 		file = plist_get_file (curr_plist, curr_playing);
+		item_name = plist_get_item_name (curr_plist, curr_playing);
 		UNLOCK (plist_mut);
 
 		play_next = 0;
 		play_prev = 0;
 
-		if (file) {
+		if (file && item_name) 
+        {
 			int next;
 			char *next_file;
 
 			LOCK (curr_playing_mut);
 			LOCK (plist_mut);
-			logit ("Playing item %d: %s", curr_playing, file);
+			logit ("Playing item %d: %s", curr_playing, item_name);
 
 			if (curr_playing_fname)
 				free (curr_playing_fname);
-			curr_playing_fname = xstrdup (file);
+			curr_playing_fname = xstrdup (item_name);
 
 			out_buf_time_set (&out_buf, 0.0);
 
 			next = plist_next (curr_plist, curr_playing);
-			next_file = next != -1
-				? plist_get_file(curr_plist, next) : NULL;
+			next_file = next != -1 ? plist_get_item_name(curr_plist, next) : NULL;
 			UNLOCK (plist_mut);
 			UNLOCK (curr_playing_mut);
 
-			player (file, next_file, &out_buf);
+			player (file, next_file, &out_buf, curr_plist->items[curr_playing].stime, curr_plist->items[curr_playing].etime);
 			if (next_file)
 				free (next_file);
 
@@ -459,11 +463,22 @@ static void *play_thread (void *unused ATTR_UNUSED)
 			set_info_bitrate (0);
 			set_info_channels (1);
 			out_buf_time_set (&out_buf, 0.0);
-			free (file);
 		}
 
+		if (file)
+        {
+			free (file);
+            file = NULL;
+        }
+		if (item_name)
+        {
+			free (item_name);
+            item_name = NULL;
+        }
+
 		LOCK (curr_playing_mut);
-		if (last_stream_url) {
+		if (last_stream_url) 
+        {
 			free (last_stream_url);
 			last_stream_url = NULL;
 		}
@@ -864,6 +879,30 @@ int audio_get_time ()
 	return state != STATE_STOP ? out_buf_time_get (&out_buf) : 0;
 }
 
+/* Get virtual time of playing track. Should be used
+ * for getting position in cue tracks */
+time_t audio_get_vtime ()
+{
+    time_t time = 0;
+    int playing = 0;
+
+    LOCK (curr_playing_mut);
+    playing = curr_playing;
+    UNLOCK (curr_playing_mut);
+
+    if (state != STATE_STOP) 
+    {
+        time = out_buf_time_get (&out_buf);
+        if (playing != -1 && is_cue (curr_plist, playing))
+        {
+            time -= curr_plist->items[playing].stime;
+        }
+    }
+
+    return (time < 0 ? 0 : time);
+}
+
+
 void audio_close ()
 {
 	if (audio_opened) {
@@ -1042,15 +1081,29 @@ int audio_get_prev_state ()
 	return prev_state;
 }
 
-void audio_plist_add (const char *file)
+void audio_plist_add (const char *file, const char *cue_track_title, const time_t stime, const time_t etime)
 {
+	const char *key = cue_track_title ? cue_track_title : file;
+	int added;
+
 	LOCK (plist_mut);
 	plist_clear (&shuffled_plist);
-	if (plist_find_fname(&playlist, file) == -1)
-		plist_add (&playlist, file);
+	if (plist_find_fname(&playlist, key) == -1)
+    {
+		if (cue_track_title) 
+        {
+			added = plist_add (&playlist, NULL);
+			plist_set_cue(&playlist, added, stime, etime, cue_track_title, file);
+		}
+        else
+        {
+			plist_add(&playlist, file);
+        }
+    }
 	else
-		logit ("Wanted to add a file that is already present on the "
-				"list: %s", file);
+    {
+		logit ("Wanted to add a file that is already present on the list: %s", file);
+    }
 	UNLOCK (plist_mut);
 }
 
@@ -1086,10 +1139,58 @@ char *audio_get_sname ()
 	char *sname;
 
 	LOCK (curr_playing_mut);
-	sname = xstrdup (curr_playing_fname);
+	sname = xstrdup (curr_playing != -1
+			? curr_plist->items[curr_playing].file : "");
 	UNLOCK (curr_playing_mut);
 
 	return sname;
+}
+
+char *audio_get_title ()
+{
+       char *title;
+
+       LOCK (curr_playing_mut);
+       title = xstrdup (curr_playing != -1 ? curr_plist->items[curr_playing].title_tags : "");
+       UNLOCK (curr_playing_mut);
+
+       return title;
+}
+
+enum file_type audio_get_type ()
+{
+       enum file_type type = F_OTHER;
+
+       LOCK (curr_playing_mut);
+       if (curr_playing != -1)
+               type = curr_plist->items[curr_playing].type;
+       UNLOCK (curr_playing_mut);
+
+       return type;
+}
+
+time_t audio_get_stime ()
+{
+       time_t stime = -1;
+
+       LOCK (curr_playing_mut);
+       if (curr_playing != -1)
+               stime = curr_plist->items[curr_playing].stime;
+       UNLOCK (curr_playing_mut);
+
+       return stime;
+}
+
+time_t audio_get_etime ()
+{
+       time_t etime = -1;
+
+       LOCK (curr_playing_mut);
+       if (curr_playing != -1)
+               etime = curr_plist->items[curr_playing].etime;
+       UNLOCK (curr_playing_mut);
+
+       return etime;
 }
 
 int audio_get_mixer ()

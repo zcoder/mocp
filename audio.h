@@ -2,6 +2,7 @@
 #define AUDIO_H
 
 #include <stdlib.h>
+#include "playlist.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -240,11 +241,16 @@ int audio_get_bps ();
 int audio_get_buf_fill ();
 void audio_close ();
 int audio_get_time ();
+time_t audio_get_vtime ();
 int audio_get_state ();
 int audio_get_prev_state ();
-void audio_plist_add (const char *file);
+void audio_plist_add (const char *file, const char *cue_track_title, const time_t stime, const time_t etime);
 void audio_plist_clear ();
 char *audio_get_sname ();
+char *audio_get_title ();
+enum file_type audio_get_type ();
+time_t audio_get_stime ();
+time_t audio_get_etime ();
 void audio_set_mixer (const int val);
 int audio_get_mixer ();
 void audio_plist_delete (const char *file);

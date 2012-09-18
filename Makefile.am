@@ -35,6 +35,8 @@ mocp_SOURCES = log.c \
 	       options.h \
 	       player.c \
 	       player.h \
+	       cue_sheet_file.c \
+	       cue_sheet_file.h \
 	       playlist_file.c \
 	       playlist_file.h \
 	       themes.c \

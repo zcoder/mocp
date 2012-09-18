@@ -33,6 +33,7 @@
 #include "rbtree.h"
 #include "utf8.h"
 #include "rcc.h"
+#include "cue_sheet_file.h"
 
 /* Initial size of the table */
 #define	INIT_SIZE	64
@@ -136,8 +137,10 @@ static int rb_compare (const void *a, const void *b, void *adata)
 	struct plist *plist = (struct plist *)adata;
 	plist_t_item_ix pos_a = (plist_t_item_ix)a;
 	plist_t_item_ix pos_b = (plist_t_item_ix)b;
+    char *str1 = plist->items[pos_a].type == F_CUE_TRACK ? plist->items[pos_a].title_tags : plist->items[pos_a].file;
+    char *str2 = plist->items[pos_b].type == F_CUE_TRACK ? plist->items[pos_b].title_tags : plist->items[pos_b].file; 
 
-	return strcoll (plist->items[pos_a].file, plist->items[pos_b].file);
+	return strcoll (str1, str2);
 }
 
 static int rb_fname_compare (const void *key, const void *data, void *adata)
@@ -145,8 +148,9 @@ static int rb_fname_compare (const void *key, const void *data, void *adata)
 	struct plist *plist = (struct plist *)adata;
 	const char *fname = (const char *)key;
 	const plist_t_item_ix pos = (plist_t_item_ix)data;
+    char *str = plist->items[pos].type == F_CUE_TRACK ? plist->items[pos].title_tags : plist->items[pos].file;
 
-	return strcoll (fname, plist->items[pos].file);
+	return strcoll (fname, str);
 }
 
 /* Return 1 if an item has 'deleted' flag. */
@@ -184,7 +188,9 @@ struct plist_item *plist_new_item ()
 	item->title_file = NULL;
 	item->title_tags = NULL;
 	item->tags = NULL;
-	item->mtime = (time_t)-1;
+	item->mtime = (time_t) -1;
+	item->stime = (time_t) -1;
+	item->etime = (time_t) -1;
 	item->queue_pos = 0;
 
 	return item;
@@ -211,6 +217,8 @@ int plist_add (struct plist *plist, const char *file_name)
 	plist->items[plist->num].tags = NULL;
 	plist->items[plist->num].mtime = (file_name ? get_mtime(file_name)
 			: (time_t)-1);
+	plist->items[plist->num].stime = (time_t) -1;
+	plist->items[plist->num].etime = (time_t) -1;
 	plist->items[plist->num].queue_pos = 0;
 
 	if (file_name) {
@@ -224,6 +232,43 @@ int plist_add (struct plist *plist, const char *file_name)
 	return plist->num - 1;
 }
 
+/* Add items title to the rb tree. Used for cue track when adding to plist. */
+void plist_add_cue (struct plist *plist, const int pos, const char *title)
+{
+    if (title) 
+    {
+        rb_delete (&plist->search_tree, title);
+        rb_insert (&plist->search_tree, (void *) pos);
+    }
+}
+
+/* Set cue parameters for added item and add it to the rb tree. */
+void plist_set_cue (struct plist *plist, const int i, const time_t start_time, const time_t end_time, const char *title, const char *file_name)
+{
+    plist->items[i].type = F_CUE_TRACK;
+    plist->items[i].stime = start_time;
+    plist->items[i].etime = end_time;
+
+    if (end_time != -1)
+    {
+        plist_set_item_time (plist, i, (int) (end_time - start_time));
+    }
+
+    plist_set_title_tags (plist, i, title);
+
+    if (plist->items[i].file)
+    {
+        free (plist->items[i].file);
+    }
+    plist->items[i].file = xstrdup (file_name);
+
+    if (title) 
+    {
+        rb_delete (&plist->search_tree, title);
+        rb_insert (&plist->search_tree, (void *) i);
+    }
+}
+
 /* Copy all fields of item src to dst. */
 void plist_item_copy (struct plist_item *dst, const struct plist_item *src)
 {
@@ -234,12 +279,21 @@ void plist_item_copy (struct plist_item *dst, const struct plist_item *src)
 	dst->title_file = xstrdup (src->title_file);
 	dst->title_tags = xstrdup (src->title_tags);
 	dst->mtime = src->mtime;
-	dst->queue_pos = src->queue_pos;
+	dst->stime = src->stime;
+	dst->etime = src->etime;
+   	dst->queue_pos = src->queue_pos;
 
 	if (src->tags)
+    {
 		dst->tags = tags_dup (src->tags);
+    }
 	else
+    {
 		dst->tags = NULL;
+    }
+
+	//if (dst->type == F_CUE_TRACK)
+	//	dst->title_file = dst->title_tags;
 
 	dst->deleted = src->deleted;
 }
@@ -259,6 +313,42 @@ char *plist_get_file (const struct plist *plist, int i)
 		file = xstrdup (plist->items[i].file);
 
 	return file;
+}
+
+/* Get name (title if cue track, file otherwise) from playlist item.
+ * If the item number is not valid, return NULL.
+ * Returned memory is malloced.
+ */
+char *plist_get_item_name (const struct plist *plist, int i)
+{
+    char *name = NULL;
+
+    assert (i >= 0);
+    assert (plist != NULL);
+
+    if (i < plist->num)
+    {
+        name = xstrdup (is_cue (plist, i) ? plist->items[i].title_tags : plist->items[i].file); //TODO: check this
+    }
+    return name;
+}
+
+/* Get title of an item with index i from playlist.
+ * If the item number is not valid, return NULL.
+ * Returned memory is malloced.
+ */
+char *plist_get_title (const struct plist *plist, int i)
+{
+    char *title = NULL;
+
+    assert (i >= 0);
+    assert (plist != NULL);
+
+    if (i < plist->num)
+    {
+        title = xstrdup (plist->items[i].title_tags);
+    }
+    return title;
 }
 
 /* Get the number of the next item on the list (skipping deleted items).
@@ -383,35 +473,35 @@ void plist_sort_fname (struct plist *plist)
 }
 
 /* Find an item in the list.  Return the index or -1 if not found. */
-int plist_find_fname (struct plist *plist, const char *file)
+int plist_find_fname (struct plist *plist, const char *searched_name)
 {
 	struct rb_node *x;
 
 	assert (plist != NULL);
 
-	x = rb_search (&plist->search_tree, file);
+	x = rb_search (&plist->search_tree, searched_name);
 
 	if (rb_is_null(x))
 		return -1;
 
-	return !plist_deleted(plist, (plist_t_item_ix)x->data)
-	                                 ? (plist_t_item_ix)x->data
-	                                 : -1;
+	return !plist_deleted(plist, (plist_t_item_ix)x->data) ? (plist_t_item_ix)x->data : -1;
 }
 
 /* Find an item in the list; also find deleted items.  If there is more than
  * one item for this file, return the non-deleted one or, if all are deleted,
  * return the last of them.  Return the index or -1 if not found. */
-int plist_find_del_fname (const struct plist *plist, const char *file)
+int plist_find_del_fname (const struct plist *plist, const char *searched_name)
 {
 	int i;
 	int item = -1;
 
 	assert (plist != NULL);
 
-	for (i = 0; i < plist->num; i++) {
-		if (plist->items[i].file
-				&& !strcmp(plist->items[i].file, file)) {
+	for (i = 0; i < plist->num; i++) 
+    {
+        char *item_name = is_cue (plist, i) ? plist->items[i].title_tags : plist->items[i].file;
+		if (plist->items[i].file && !strcmp(item_name, searched_name)) 
+        {
 			if (item == -1 || plist_deleted(plist, item))
 				item = i;
 		}
@@ -420,7 +510,7 @@ int plist_find_del_fname (const struct plist *plist, const char *file)
 	return item;
 }
 
-/* Returns the next filename that is a dead entry, or NULL if there are none
+/* Returns the next item name that is a dead entry, or NULL if there are none
  * left.
  *
  * It will set the index on success.
@@ -433,12 +523,12 @@ const char *plist_get_next_dead_entry (const struct plist *plist,
 	assert (last_index != NULL);
 	assert (plist != NULL);
 
-	for (i = *last_index; i < plist->num; i++) {
-		if (plist->items[i].file
-			  && ! plist_deleted(plist, i)
-			  && ! can_read_file(plist->items[i].file)) {
+	for (i = *last_index; i < plist->num; i++) 
+    {
+		if (plist->items[i].file && ! plist_deleted(plist, i) && ! can_read_file(plist->items[i].file))
+        {
 			*last_index = i + 1;
-			return plist->items[i].file;
+			return is_cue (plist, i) ? plist->items[i].title_tags : plist->items[i].file;
 		}
 	}
 
@@ -599,11 +689,17 @@ char *build_title (const struct file_tags *tags)
 /* Copy the item to the playlist. Return the index of the added item. */
 int plist_add_from_item (struct plist *plist, const struct plist_item *item)
 {
-	int pos = plist_add (plist, item->file);
+	int pos = plist_add (plist, item->type == F_CUE_TRACK ? NULL: item->file);
 
 	plist_item_copy (&plist->items[pos], item);
 
-	if (item->tags && item->tags->time != -1) {
+	if (item->type == F_CUE_TRACK)
+    {
+		plist_add_cue (plist, pos, plist->items[pos].title_tags);
+    }
+
+	if (item->tags && item->tags->time != -1) 
+    {
 		plist->total_time += item->tags->time;
 		plist->items_with_time++;
 	}
@@ -617,25 +713,20 @@ void plist_delete (struct plist *plist, const int num)
 	assert (!plist->items[num].deleted);
 	assert (plist->not_deleted > 0);
 
-	if (num < plist->num) {
-
-		/* Free every field except the file, it is needed in deleted
-		 * items. */
-		char *file = plist->items[num].file;
-
-		plist->items[num].file = NULL;
-
-		if (plist->items[num].tags
-				&& plist->items[num].tags->time != -1) {
+	if (num < plist->num)
+    {
+		/* Free every field except the file and title, they are needed in deleted items. */
+		if (plist->items[num].tags && plist->items[num].tags->time != -1)
+        {
 			plist->total_time -= plist->items[num].tags->time;
 			plist->items_with_time--;
 		}
-
-		plist_free_item_fields (&plist->items[num]);
-		plist->items[num].file = file;
-
+        if (plist->items[num].tags) //TODO: BTW may be fail here, my mind don't understand this
+        {
+            tags_free (plist->items[num].tags);
+            plist->items[num].tags = NULL;
+        }
 		plist->items[num].deleted = 1;
-
 		plist->not_deleted--;
 	}
 }
@@ -708,8 +799,7 @@ void plist_cat (struct plist *a, struct plist *b)
 	for (i = 0; i < b->num; i++) {
 		assert (b->items[i].file != NULL);
 
-		if (!plist_deleted(b, i)
-				&& plist_find_fname(a, b->items[i].file) == -1)
+		if (!plist_deleted(b, i) && plist_find_fname(a, is_cue (b, i) ? b->items[i].title_tags : b->items[i].file) == -1)
 			plist_add_from_item (a, &b->items[i]);
 	}
 }
@@ -810,7 +900,7 @@ void plist_swap_first_fname (struct plist *plist, const char *fname)
 
 	if (i != -1 && i != 0) {
 		rb_delete (&plist->search_tree, fname);
-		rb_delete (&plist->search_tree, plist->items[0].file);
+		rb_delete (&plist->search_tree, plist->items[0].type == F_CUE_TRACK ? plist->items[0].title_tags : plist->items[0].file);
 		plist_swap (plist, 0, i);
 		rb_insert (&plist->search_tree, (void *)0);
 		rb_insert (&plist->search_tree, (void *)i);

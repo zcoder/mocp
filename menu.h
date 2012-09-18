@@ -49,6 +49,10 @@ struct menu_item
 	char *file;
 	enum file_type type;
 
+	/* Start and end time needed for CUE tracks */
+	time_t stime;
+	time_t etime;
+
 	/* Additional information shown: */
 	char time[FILE_TIME_STR_SZ];		/* File time string */
 	char format[FILE_FORMAT_SZ];		/* File format */
@@ -96,10 +100,8 @@ struct menu_state
 	int selected_item;
 };
 
-struct menu *menu_new (WINDOW *win, const int posx, const int posy,
-		const int width, const int height);
-struct menu_item *menu_add (struct menu *menu, const char *title,
-		const enum file_type type, const char *file);
+struct menu *menu_new (WINDOW *win, const int posx, const int posy, const int width, const int height);
+struct menu_item *menu_add (struct menu *menu, const char *title, const enum file_type type, const char *file, const time_t start_time, const time_t end_time);
 
 void menu_item_set_attr_normal (struct menu_item *mi, const int attr);
 void menu_item_set_attr_sel (struct menu_item *mi, const int attr);
@@ -130,6 +132,9 @@ void menu_set_info_attr_marked (struct menu *menu, const int attr);
 void menu_set_info_attr_sel_marked (struct menu *menu, const int attr);
 void menu_set_items_numbering (struct menu *menu, const int number);
 enum file_type menu_item_get_type (const struct menu_item *mi);
+char *menu_item_get_title (const struct menu_item *mi);
+time_t menu_item_get_stime (const struct menu_item *mi);
+time_t menu_item_get_etime (const struct menu_item *mi);
 char *menu_item_get_file (const struct menu_item *mi);
 struct menu_item *menu_curritem (struct menu *menu);
 void menu_item_set_title (struct menu_item *mi, const char *title);

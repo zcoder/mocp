@@ -305,6 +305,8 @@ void packet_buf_add_item (struct packet_buf *b, const struct plist_item *item)
 	packet_buf_add_str (b, item->title_tags ? item->title_tags : "");
 	packet_buf_add_tags (b, item->tags);
 	packet_buf_add_time (b, item->mtime);
+	packet_buf_add_time (b, item->stime);
+	packet_buf_add_time (b, item->etime);
 }
 
 /* Send data to the socket. Return 0 on error. */
@@ -438,7 +440,8 @@ struct plist_item *recv_item (int sock)
 		return NULL;
 	}
 
-	if (item->file[0]) {
+	if (item->file[0]) 
+    {
 		if (!(item->title_tags = get_str(sock))) {
 			logit ("Error while receiving tags title");
 			free (item->file);
@@ -469,6 +472,39 @@ struct plist_item *recv_item (int sock)
 			return NULL;
 		}
 
+        if (!get_time (sock, &item->stime))
+        {
+            logit ("Error while receiving stime");
+            if (item->title_tags)
+            {
+                    free (item->title_tags);
+            }
+            free (item->file);
+            tags_free (item->tags);
+            free (item);
+            return NULL;
+        }
+        else
+        {
+            if (item->stime != -1)
+            {
+                item->type = F_CUE_TRACK;
+                item->tags->title = item->title_tags; //TODO: check this
+            }
+        }
+
+        if (!get_time (sock, &item->etime))
+        {
+            logit ("Error while receiving etime");
+            if (item->title_tags)
+            {
+                    free (item->title_tags);
+            }
+            free (item->file);
+            tags_free (item->tags);
+            free (item);
+            return NULL;
+        }
 	}
 
 	return item;
@@ -570,17 +606,17 @@ void free_move_ev_data (struct move_ev_data *m)
 
 struct move_ev_data *move_ev_data_dup (const struct move_ev_data *m)
 {
-	struct move_ev_data *new;
+	struct move_ev_data *new_ptr;
 
 	assert (m != NULL);
 	assert (m->from != NULL);
 	assert (m->to != NULL);
 
-	new = (struct move_ev_data *)xmalloc (sizeof(struct move_ev_data));
-	new->from = xstrdup (m->from);
-	new->to = xstrdup (m->to);
+	new_ptr = (struct move_ev_data *)xmalloc (sizeof(struct move_ev_data));
+	new_ptr->from = xstrdup (m->from);
+	new_ptr->to = xstrdup (m->to);
 
-	return new;
+	return new_ptr;
 }
 
 /* Free data associated with the event if any. */
@@ -660,38 +696,49 @@ static struct packet_buf *make_event_packet (const struct event *e)
 
 	packet_buf_add_int (b, e->type);
 
-	if (e->type == EV_PLIST_DEL
-			|| e->type == EV_QUEUE_DEL
-			|| e->type == EV_STATUS_MSG) {
+	if (e->type == EV_PLIST_DEL	|| e->type == EV_QUEUE_DEL || e->type == EV_STATUS_MSG)
+    {
 		assert (e->data != NULL);
-		packet_buf_add_str (b, e->data);
+		packet_buf_add_str (b, (const char*)e->data);
 	}
-	else if (e->type == EV_PLIST_ADD || e->type == EV_QUEUE_ADD) {
-		assert (e->data != NULL);
-		packet_buf_add_item (b, e->data);
-	}
-	else if (e->type == EV_FILE_TAGS) {
-		struct tag_ev_response *r;
-
-		assert (e->data != NULL);
-		r = e->data;
-
-		packet_buf_add_str (b, r->file);
-		packet_buf_add_tags (b, r->tags);
-	}
-	else if (e->type == EV_PLIST_MOVE || e->type == EV_QUEUE_MOVE) {
-		struct move_ev_data *m;
-
-		assert (e->data != NULL);
-
-		m = (struct move_ev_data *)e->data;
-		packet_buf_add_str (b, m->from);
-		packet_buf_add_str (b, m->to);
-	}
-	else if (e->data)
-		abort (); /* BUG */
-
-	return b;
+	else
+    {
+        if (e->type == EV_PLIST_ADD || e->type == EV_QUEUE_ADD) 
+        {
+            assert (e->data != NULL);
+            packet_buf_add_item (b, (const struct plist_item*)e->data);
+        }
+        else
+        {
+            if (e->type == EV_FILE_TAGS) 
+            {
+                struct tag_ev_response *r;
+                assert (e->data != NULL);
+                r = (struct tag_ev_response *)e->data;
+                packet_buf_add_str (b, (const char*)r->file);
+                packet_buf_add_tags (b, r->tags);
+            }
+            else
+            {
+                if (e->type == EV_PLIST_MOVE || e->type == EV_QUEUE_MOVE)
+                {
+                    struct move_ev_data *m;
+                    assert (e->data != NULL);
+                    m = (struct move_ev_data *)e->data;
+                    packet_buf_add_str (b, m->from);
+                    packet_buf_add_str (b, m->to);
+                }
+                else 
+                {
+                    if (e->data)
+                    {
+                        abort (); /* BUG */
+                    }
+                }
+            }
+        }
+    }
+    return b;
 }
 
 /* Send the first event from the queue an remove it on success. If the

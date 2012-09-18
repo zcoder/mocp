@@ -178,7 +178,7 @@ void make_file_title (struct plist *plist, const int num,
 		const int hide_extension)
 {
 	assert (plist != NULL);
-	assert (num >= 0 && num < plist->num);
+	assert (LIMIT(num, plist->num));
 	assert (!plist_deleted (plist, num));
 
 	if (file_type (plist->items[num].file) != F_URL) {
@@ -212,7 +212,7 @@ void make_tags_title (struct plist *plist, const int num)
 	char *title;
 
 	assert (plist != NULL);
-	assert (num >= 0 && num < plist->num);
+	assert (LIMIT(num, plist->num));
 	assert (!plist_deleted (plist, num));
 
 	if (file_type (plist->items[num].file) == F_URL) {

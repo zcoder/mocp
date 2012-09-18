@@ -322,7 +322,7 @@ static void entry_history_add (struct entry_history *h,	const char *text)
 static void entry_history_replace (struct entry_history *h, int num, const char *text)
 {
 	assert (h != NULL);
-	assert (num >= 0 && num < h->num);
+	assert (LIMIT(num, h->num));
 	assert (text != NULL);
 
 	if (strlen (text) != strspn (text, " ") &&
@@ -354,7 +354,7 @@ static int entry_history_nitems (const struct entry_history *h)
 static char *entry_history_get (const struct entry_history *h, const int num)
 {
 	assert (h != NULL);
-	assert (num >= 0 && num < h->num);
+	assert (LIMIT(num, h->num));
 
 	return xstrdup (h->items[num]);
 }
@@ -881,7 +881,7 @@ static bool parse_layout_coordinate (const char *fmt, int *val, const int max)
 	else
 		*val = v;
 
-	if (*val < 0 || *val > max) {
+	if (!RANGE(0, *val, max)) {
 		logit ("Coordinate out of range - %d is not in (0, %d)", *val, max);
 		return false;
 	}
@@ -1536,7 +1536,7 @@ static int side_menu_update_item (struct side_menu *m,
 	assert (m->visible);
 	assert (m->type == MENU_DIR || m->type == MENU_PLAYLIST);
 	assert (plist != NULL);
-	assert (n >= 0 && n < plist->num);
+	assert (LIMIT(n, plist->num));
 
 	file = plist_get_file (plist, n);
 	assert (file != NULL);
@@ -2119,7 +2119,7 @@ static void main_win_update_item (struct main_win *w,
 
 	assert (w != NULL);
 	assert (plist != NULL);
-	assert (n >= 0 && n < plist->num);
+	assert (LIMIT(n, plist->num));
 
 	m = find_side_menu (w, iface_to_side_menu(iface_menu));
 
@@ -2688,8 +2688,8 @@ static void bar_draw (const struct bar *b, WINDOW *win, const int pos_x,
 
 	assert (b != NULL);
 	assert (win != NULL);
-	assert (pos_x >= 0 && pos_x < COLS - b->width);
-	assert (pos_y >= 0 && pos_y < LINES);
+	assert (LIMIT(pos_x, COLS - b->width));
+	assert (LIMIT(pos_y, LINES));
 
 	fill_chars = b->filled * b->width / 100.0;
 
@@ -3102,8 +3102,8 @@ static void info_win_set_block_title (struct info_win *w)
 static void info_win_set_block (struct info_win *w, const int block_start, const int block_end)
 {
 	assert (w != NULL);
-	assert (block_start == -1 || (block_start >= 0 && block_start <= w->total_time));
-	assert (block_end == -1 || (block_end >= 0 && block_end <= w->total_time));
+	assert (block_start == -1 || RANGE(0, block_start, w->total_time));
+	assert (block_end == -1 || RANGE(0, block_end, w->total_time));
 
 	info_win.block_start = block_start;
 	info_win.block_end = block_end;

@@ -143,7 +143,7 @@ static ssize_t io_internal_read (struct io_stream *s, const int dont_move,
 #ifdef HAVE_MMAP
 static off_t io_seek_mmap (struct io_stream *s, const long where)
 {
-	assert (where >= 0 && where <= (long)s->size);
+	assert (RANGE(0, where, (long)s->size));
 
 	return (s->mem_pos = where);
 }
@@ -208,7 +208,7 @@ off_t io_seek (struct io_stream *s, off_t offset, int whence)
 	LOCK (s->io_mutex);
 	switch (whence) {
 		case SEEK_SET:
-			if (offset >= 0 && (size_t)offset < s->size)
+			if (LIMIT(offset, (off_t)s->size))
 				new_pos = offset;
 			break;
 		case SEEK_CUR:

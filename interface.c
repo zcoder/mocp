@@ -681,6 +681,21 @@ static void update_item_tags (struct plist *plist, const int num,
 		tags_free (old_tags);
 }
 
+/* Truncate string at screen-upsetting whitespace. */
+static void sanitise_string (char *str)
+{
+	if (!str)
+		return;
+
+	while (*str) {
+		if (*str != ' ' && isspace (*str)) {
+			*str = 0x00;
+			break;
+		}
+		str++;
+	}
+}
+
 /* Handle EV_FILE_TAGS. */
 static void ev_file_tags (const struct tag_ev_response *data)
 {
@@ -691,6 +706,10 @@ static void ev_file_tags (const struct tag_ev_response *data)
 	assert (data->tags != NULL);
 
 	debug ("Received tags for %s", data->file);
+
+	sanitise_string (data->tags->title);
+	sanitise_string (data->tags->artist);
+	sanitise_string (data->tags->album);
 
 	if ((n = plist_find_fname(dir_plist, data->file)) != -1) {
 		update_item_tags (dir_plist, n, data->tags);
@@ -1962,11 +1981,7 @@ static void switch_pause ()
 
 static void set_mixer (int val)
 {
-	if (val < 0)
-		val = 0;
-	else if (val > 100)
-		val = 100;
-
+	val = CLAMP(0, val, 100);
 	send_int_to_srv (CMD_SET_MIXER);
 	send_int_to_srv (val);
 }
@@ -2814,10 +2829,7 @@ static void seek_silent (const int sec)
 		else
 			silent_seek_pos += sec;
 
-		if (silent_seek_pos < 0)
-			silent_seek_pos = 0;
-		else if (silent_seek_pos > curr_file.total_time)
-			silent_seek_pos = curr_file.total_time;
+		silent_seek_pos = CLAMP(0, silent_seek_pos, curr_file.total_time);
 
 		silent_seek_key_last = rounded_time ();
 		iface_set_curr_time (silent_seek_pos);
@@ -3292,7 +3304,7 @@ static void go_to_fast_dir (const int num)
 {
 	char option_name[20];
 
-	assert (num >= 1 && num <= 10);
+	assert (RANGE(1, num, 10));
 
 	sprintf (option_name, "FastDir%d", num);
 

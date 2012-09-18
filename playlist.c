@@ -156,7 +156,7 @@ static int rb_fname_compare (const void *key, const void *data, void *adata)
 /* Return 1 if an item has 'deleted' flag. */
 inline int plist_deleted (const struct plist *plist, const int num)
 {
-	assert (num >=0 && num < plist->num);
+	assert (LIMIT(num, plist->num));
 
 	return plist->items[num].deleted;
 }
@@ -743,7 +743,7 @@ int plist_count (const struct plist *plist)
 void plist_set_title_tags (struct plist *plist, const int num,
 		const char *title)
 {
-	assert (num >= 0 && num < plist->num);
+	assert (LIMIT(num, plist->num));
 
 	if (plist->items[num].title_tags)
 		free (plist->items[num].title_tags);
@@ -754,7 +754,7 @@ void plist_set_title_tags (struct plist *plist, const int num,
 void plist_set_title_file (struct plist *plist, const int num,
 		const char *title)
 {
-	assert (num >= 0 && num < plist->num);
+	assert (LIMIT(num, plist->num));
 
 	if (plist->items[num].title_file)
 		free (plist->items[num].title_file);
@@ -773,7 +773,7 @@ void plist_set_title_file (struct plist *plist, const int num,
 /* Set file for an item. */
 void plist_set_file (struct plist *plist, const plist_t_item_ix num, const char *file)
 {
-	assert (num >=0 && num < plist->num);
+	assert (LIMIT(num, plist->num));
 	assert (file != NULL);
 
 	if (plist->items[num].file) {
@@ -810,7 +810,7 @@ void plist_set_item_time (struct plist *plist, const int num, const int time)
 	int old_time;
 
 	assert (plist != NULL);
-	assert (num >= 0 && num < plist->num);
+	assert (LIMIT(num, plist->num));
 
 	if (!plist->items[num].tags) {
 		plist->items[num].tags = tags_new ();
@@ -861,8 +861,8 @@ int plist_total_time (const struct plist *plist, int *all_files)
 static void plist_swap (struct plist *plist, const int a, const int b)
 {
 	assert (plist != NULL);
-	assert (a >= 0 && a < plist->num);
-	assert (b >= 0 && b < plist->num);
+	assert (LIMIT(a, plist->num));
+	assert (LIMIT(b, plist->num));
 
 	if (a != b) {
 		struct plist_item t;
@@ -974,7 +974,7 @@ void plist_set_tags (struct plist *plist, const int num,
 	int old_time;
 
 	assert (plist != NULL);
-	assert (num >= 0 && num < plist->num);
+	assert (LIMIT(num, plist->num));
 	assert (tags != NULL);
 
 	if (plist->items[num].tags && plist->items[num].tags->time != -1)
@@ -1000,7 +1000,7 @@ void plist_set_tags (struct plist *plist, const int num,
 struct file_tags *plist_get_tags (const struct plist *plist, const int num)
 {
 	assert (plist != NULL);
-	assert (num >= 0 && num < plist->num);
+	assert (LIMIT(num, plist->num));
 
 	if (plist->items[num].tags)
 		return tags_dup (plist->items[num].tags);
@@ -1038,7 +1038,7 @@ int plist_get_position (const struct plist *plist, int num)
 {
 	int i, pos = 1;
 
-	assert (num >= 0 && num < plist->num);
+	assert (LIMIT(num, plist->num));
 
 	for (i = 0; i < num; i++) {
 		if(!plist->items[i].deleted)

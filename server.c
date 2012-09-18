@@ -14,7 +14,6 @@
 #endif
 
 #include <stdio.h>
-#include <sys/types.h>
 #include <sys/socket.h>
 #ifdef HAVE_SYS_SELECT_H
 # include <sys/select.h>
@@ -22,8 +21,6 @@
 #include <sys/time.h>
 #include <sys/un.h>
 #include <time.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
@@ -1890,7 +1887,7 @@ void tags_response (const int client_id, const char *file,
 {
 	assert (file != NULL);
 	assert (tags != NULL);
-	assert (client_id >= 0 && client_id < CLIENTS_MAX);
+	assert (LIMIT(client_id, CLIENTS_MAX));
 
 	if (clients[client_id].socket != -1) {
 		struct tag_ev_response *data

@@ -1525,11 +1525,13 @@ static void handle_command (const int client_id)
                 err = 1;
             break;
         case CMD_GET_STIME:
-            if (!send_stime(cli))
+            //if (!send_stime(cli))
+            if (!send_data_int(cli, audio_get_stime()))
                 err = 1;
             break;
         case CMD_GET_ETIME:
-            if (!send_etime(cli))
+            //if (!send_etime(cli))
+            if (!send_data_int(cli, audio_get_etime()))
                 err = 1;
             break;
 		case CMD_GET_STATE:

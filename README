@@ -121,7 +121,10 @@ How to install it?
 Generic installation instruction is included in the INSTALL file.
 In short, just type:
 
-	./configure
+	FOR AVOID CURILLIC SUMBOLS AS #######  
+	apt-get install libncursesw5-dev (before configure)
+
+	./configure #or ex: ./configure --with-rcc --with-alsa --with-vorbis --with-samplerate --with-curl --disable-debug
 	make
 
 And as root:

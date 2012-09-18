@@ -37,6 +37,8 @@ enum file_type
 {
 	F_DIR,
 	F_SOUND,
+	F_CUE_TRACK,	/* cue track in playlist */
+	F_CUE_SHEET,	/* cue sheet in directory list */
 	F_URL,
 	F_PLAYLIST,
 	F_THEME,
@@ -52,6 +54,8 @@ struct plist_item
 	struct file_tags *tags;
 	short deleted;
 	time_t mtime;		/* modification time */
+	time_t stime;		/* cue track start time */
+	time_t etime;		/* cue track end time */
 	int queue_pos;		/* position in the queue */
 };
 
@@ -70,8 +74,11 @@ struct plist
 
 void plist_init (struct plist *plist);
 int plist_add (struct plist *plist, const char *file_name);
+void plist_set_cue(struct plist *plist, const int i, const time_t start_time, const time_t end_time, const char *title, const char *file_name);
 int plist_add_from_item (struct plist *plist, const struct plist_item *item);
 char *plist_get_file (const struct plist *plist, int i);
+char *plist_get_item_name (const struct plist *plist, int i);
+char *plist_get_title (const struct plist *plist, int i);
 int plist_next (struct plist *plist, int num);
 int plist_prev (struct plist *plist, int num);
 void plist_clear (struct plist *plist);

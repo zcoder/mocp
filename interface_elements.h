@@ -61,19 +61,16 @@ void windows_end ();
 void iface_set_option_state (const char *name, const int value);
 void iface_set_mixer_name (const char *name);
 void iface_set_status (const char *msg);
-void iface_set_dir_content (const enum iface_menu iface_menu,
-		const struct plist *files,
-		const lists_t_strs *dirs,
-		const lists_t_strs *playlists);
-void iface_update_dir_content (const enum iface_menu iface_menu,
-		const struct plist *files,
-		const lists_t_strs *dirs,
-		const lists_t_strs *playlists);
+void iface_set_dir_content (const enum iface_menu iface_menu, const struct plist *files, const lists_t_strs *dirs, const lists_t_strs *playlists, const lists_t_strs *cue_sheets);
+void iface_update_dir_content (const enum iface_menu iface_menu, const struct plist *files,	const lists_t_strs *dirs, const lists_t_strs *playlists, const lists_t_strs *cue_sheets);
 void iface_set_curr_item_title (const char *title);
 void iface_get_key (struct iface_key *k);
 int iface_key_is_resize (const struct iface_key *k);
 void iface_menu_key (const enum key_cmd cmd);
 enum file_type iface_curritem_get_type ();
+char *iface_curritem_get_title ();
+time_t iface_curritem_get_stime ();
+time_t iface_curritem_get_etime ();
 int iface_in_dir_menu ();
 int iface_in_plist_menu ();
 int iface_in_theme_menu ();

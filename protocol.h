@@ -148,6 +148,11 @@ enum noblock_io_status
 #define CMD_QUEUE_CLEAR	0x3e /* clear the queue */
 #define CMD_GET_QUEUE	0x3f /* request the queue from the server */
 
+#define CMD_GET_TITLE          0x40    /* get the title */
+#define CMD_GET_TYPE           0x41    /* get the stream type */
+#define CMD_GET_STIME          0x42    /* get start time (for cue track) */
+#define CMD_GET_ETIME          0x43    /* get end time (for cue track) */
+
 char *socket_name ();
 int get_int (int sock, int *i);
 enum noblock_io_status get_int_noblock (int sock, int *i);

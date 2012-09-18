@@ -7,7 +7,7 @@ extern "C" {
 
 #include "playlist.h"
 
-#define CLIENTS_MAX	10
+#define CLIENTS_MAX	2 //TODO change that
 
 int server_init (int debug, int foreground);
 void server_loop (int list_sock);

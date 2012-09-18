@@ -10,7 +10,7 @@ extern "C" {
 #endif
 
 void player_cleanup ();
-void player (const char *file, const char *next_file, struct out_buf *out_buf);
+void player (const char *file, const char *next_file, struct out_buf *out_buf, const time_t start, const time_t end);
 void player_stop ();
 void player_seek (const int n);
 void player_jump_to (const int n);

@@ -30,6 +30,7 @@
 #include "options.h"
 #include "interface.h"
 #include "decoder.h"
+#include "cue_sheet_file.h"
 
 int is_plist_file (const char *name)
 {
@@ -82,7 +83,10 @@ static int plist_load_m3u (struct plist *plist, const char *fname,
 	char *line = NULL;
 	int last_added = -1;
 	int after_extinf = 0;
+	int after_extcue = 0;
 	int added = 0;
+	int start_sec = -1;
+	int end_sec = -1;
 
 	file = fopen (fname, "r");
 	if (!file) {
@@ -94,13 +98,16 @@ static int plist_load_m3u (struct plist *plist, const char *fname,
 	if (flock (fileno (file), LOCK_SH) == -1)
 		logit ("Can't flock() the playlist file: %s", strerror (errno));
 
-	while ((line = read_line (file))) {
-		if (!strncmp (line, "#EXTINF:", sizeof("#EXTINF:") - 1)) {
+	while ((line = read_line (file))) 
+    {
+		if (!strncmp (line, "#EXTINF:", sizeof("#EXTINF:") - 1)) 
+        {
 			char *comma, *num_err;
 			char time_text[10] = "";
 			int time_sec;
 
-			if (after_extinf) {
+			if (after_extinf) 
+            {
 				error ("Broken M3U file: double #EXTINF!");
 				plist_delete (plist, last_added);
 				goto err;
@@ -108,24 +115,25 @@ static int plist_load_m3u (struct plist *plist, const char *fname,
 
 			/* Find the comma */
 			comma = strchr (line + (sizeof("#EXTINF:") - 1), ',');
-			if (!comma) {
+			if (!comma) 
+            {
 				error ("Broken M3U file: no comma in #EXTINF!");
 				goto err;
 			}
 
 			/* Get the time string */
 			time_text[sizeof(time_text) - 1] = 0;
-			strncpy (time_text, line + sizeof("#EXTINF:") - 1,
-			         MIN(comma - line - (sizeof("#EXTINF:") - 1),
-			         sizeof(time_text)));
-			if (time_text[sizeof(time_text) - 1]) {
+			strncpy (time_text, line + sizeof("#EXTINF:") - 1, MIN(comma - line - (sizeof("#EXTINF:") - 1), sizeof(time_text)));
+			if (time_text[sizeof(time_text) - 1]) 
+            {
 				error ("Broken M3U file: wrong time!");
 				goto err;
 			}
 
 			/* Extract the time. */
 			time_sec = strtol (time_text, &num_err, 10);
-			if (*num_err) {
+			if (*num_err) 
+            {
 				error ("Broken M3U file: time is not a number!");
 				goto err;
 			}
@@ -135,47 +143,138 @@ static int plist_load_m3u (struct plist *plist, const char *fname,
 			plist_set_title_tags (plist, last_added, comma + 1);
 
 			if (*time_text)
+            {
 				plist_set_item_time (plist, last_added, time_sec);
+            }
 		}
-		else if (line[0] != '#') {
-			char path[2 * PATH_MAX];
+		else /* #EXTCUE for CUE tracks information - start and end time. */
+        {
+            if (!strncmp(line, "#EXTCUE:", sizeof("#EXTCUE:") - 1)) 
+            {
+                char *comma;
+                char *num_err;
+                char time_text[10] = "";
 
-			strip_string (line);
-			if (strlen (line) <= PATH_MAX) {
-				make_path (path, sizeof(path), cwd, line);
+                if (!after_extinf) 
+                {
+                    error ("Broken M3U MOC file: #EXTCUE not after #EXTINF.");
+                    free (line);
+                    return added;
+                }
 
-				if (plist_find_fname (plist, path) == -1) {
-					if (after_extinf)
-						plist_set_file (plist, last_added, path);
-					else
-						plist_add (plist, path);
-					added += 1;
-				}
-				else if (after_extinf)
-					plist_delete (plist, last_added);
-			}
-			else if (after_extinf)
-				plist_delete (plist, last_added);
+                /* Find the comma */
+                comma = strchr (line + (sizeof("#EXTCUE:") - 1), ',');
+                if (!comma) 
+                {
+                    error ("Broken M3U file: no comma in #EXTCUE.");
+                    free (line);
+                    return added;
+                }
+    
+                /* Get the time string */
+                time_text[sizeof(time_text)-1] = 0;
+                strncpy (time_text, line + sizeof("#EXTCUE:") - 1, MIN(comma - line - (sizeof("#EXTCUE:") - 1), sizeof(time_text)));
+                if (time_text[sizeof(time_text)-1]) 
+                {
+                    error ("Broken M3U file: wrong time.");
+                    free (line);
+                    return added;
+                }
 
-			after_extinf = 0;
-		}
-		else if (load_serial &&
-		         !strncmp (line, "#MOCSERIAL: ", sizeof("#MOCSERIAL: ") - 1)) {
-			char *serial_str = line + sizeof("#MOCSERIAL: ") - 1;
+                /* Extract the start time */
+                start_sec = strtol (time_text, &num_err, 10);
+                if (*num_err) 
+                {
+                    error ("Broken M3U file: time is not a number.");
+                    free (line);
+                    return added;
+                }
 
-			if (serial_str[0]) {
-				char *err;
-				long serial;
+                /* Extract the end time */
+                end_sec = strtol (comma + 1, &num_err, 10);
+                if (*num_err) 
+                {
+                    error ("Broken M3U file: time is not a number.");
+                    free (line);
+                    return added;
+                }
 
-				serial = strtol (serial_str, &err, 0);
-				if (!*err) {
-					plist_set_serial (plist, serial);
-					logit ("Got MOCSERIAL tag with serial %d",
-							(int)serial);
-				}
-			}
-		}
-		free (line);
+                after_extinf = 0;
+                after_extcue = 1;
+            }
+            else
+            {
+                if (line[0] != '#') 
+                {
+                    char path[2 * PATH_MAX];
+                    char *title;
+
+                    strip_string (line);
+                    if (strlen (line) <= PATH_MAX) 
+                    {
+                        make_path (path, sizeof(path), cwd, line);
+                        if (plist_find_fname(plist, after_extcue ? plist->items[last_added].title_tags : path) == -1) 
+                        {
+                            if (after_extinf || after_extcue) 
+                            {
+                                if (after_extinf)
+                                {
+                                    plist_set_file (plist, last_added, path);
+                                }
+                                if (after_extcue) 
+                                {
+                                    title = xstrdup (plist->items[last_added].title_tags);
+                                    plist_set_cue (plist, last_added, (time_t) start_sec, (time_t) end_sec, title, path);
+                                    free (title);
+                                }
+                            }
+                            else
+                            {
+                                plist_add (plist, path);
+                            }
+                            added += 1;
+                        }
+                        else
+                        {
+                            if (after_extinf || after_extcue)
+                            {
+                                plist_delete (plist, last_added);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (after_extinf || after_extcue)
+                        {
+                            plist_delete (plist, last_added);
+                        }
+                    }
+
+                    after_extinf = 0;
+                    after_extcue = 0;
+                }
+                else
+                {
+                    if (load_serial && !strncmp (line, "#MOCSERIAL: ", sizeof("#MOCSERIAL: ") - 1)) 
+                    {
+                        char *serial_str = line + sizeof("#MOCSERIAL: ") - 1;
+
+                        if (serial_str[0]) 
+                        {
+                            char *err;
+                            long serial;
+                            serial = strtol (serial_str, &err, 0);
+                            if (!*err) 
+                            {
+                                plist_set_serial (plist, serial);
+                                logit ("Got MOCSERIAL tag with serial %d", (int)serial);
+                            }
+                        }
+                    }
+                }
+            }
+            free (line);
+        }
 	}
 
 err:
@@ -427,24 +526,20 @@ static int plist_save_m3u (struct plist *plist, const char *fname,
 		goto err;
 	}
 
-	for (i = 0; i < plist->num; i++) {
-		if (!plist_deleted (plist, i)) {
-
+	for (i = 0; i < plist->num; i++) 
+    {
+		if (!plist_deleted (plist, i)) 
+        {
 			/* EXTM3U */
 			if (plist->items[i].tags)
-				ret = fprintf (file, "#EXTINF:%d,%s\r\n",
-						plist->items[i].tags->time,
-						plist->items[i].title_tags ?
-						plist->items[i].title_tags
-						: plist->items[i].title_file);
+				ret = fprintf (file, "#EXTINF:%d,%s\r\n", plist->items[i].tags->time, plist->items[i].title_tags ? plist->items[i].title_tags : plist->items[i].title_file);
 			else
-				ret = fprintf (file, "#EXTINF:%d,%s\r\n", 0,
-						plist->items[i].title_file);
+				ret = fprintf (file, "#EXTINF:%d,%s\r\n", 0, plist->items[i].title_file);
 
-			/* file */
-			if (ret >= 0)
-				ret = fprintf (file, "%s\r\n",
-				                     plist->items[i].file + strip_path);
+            if (ret >= 0 && is_cue (plist, i))
+            {
+                ret = fprintf (file, "#EXTCUE:%d,%d\r\n", (int) plist->items[i].stime, (int) plist->items[i].etime);
+            }
 
 			if (ret < 0) {
 				error ("Error writing playlist: %s", strerror (errno));

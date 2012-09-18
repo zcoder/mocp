@@ -439,10 +439,7 @@ static void buf_free_callback ()
 
 /* Decoder loop for already opened and probably running for some time decoder.
  * next_file will be precached at eof. */
-static void decode_loop (const struct decoder *f, void *decoder_data,
-		const char *next_file, struct out_buf *out_buf,
-		struct sound_params *sound_params, struct md5_data *md5,
-		const float already_decoded_sec)
+static void decode_loop (const struct decoder *f, void *decoder_data, const char *next_file, struct out_buf *out_buf, struct sound_params *sound_params, struct md5_data *md5, const float already_decoded_sec, const time_t start, const time_t end)
 {
 	bool eof = false;
 	bool stopped = false;
@@ -450,8 +447,8 @@ static void decode_loop (const struct decoder *f, void *decoder_data,
 	int decoded = 0;
 	struct sound_params new_sound_params;
 	bool sound_params_change = false;
-	float decode_time = already_decoded_sec; /* the position of the decoder
-						    (in seconds) */
+	float decode_time = already_decoded_sec; /* the position of the decoder (in seconds) */
+	int decoder_seek;
 
 	out_buf_set_free_callback (out_buf, buf_free_callback);
 
@@ -465,58 +462,78 @@ static void decode_loop (const struct decoder *f, void *decoder_data,
 		UNLOCK (decoder_stream_mut);
 	}
 	else
+    {
 		logit ("No get_stream() function");
+    }
+
+    if (start != -1 && (decoder_seek = f->seek(decoder_data, (int) start))) 
+    {
+        out_buf_stop (out_buf);
+        out_buf_reset (out_buf);
+        out_buf_time_set (out_buf, decoder_seek);
+        bitrate_list_empty (&bitrate_list);
+        decode_time = decoder_seek;
+    }
 
 	status_msg ("Playing...");
 
-	while (1) {
-		debug ("loop...");
+	while (1) 
+    {
+        debug ("loop...");
 
 		LOCK (request_cond_mutex);
-		if (!eof && !decoded) {
+		if (!eof && !decoded) 
+        {
 			struct decoder_error err;
 
 			UNLOCK (request_cond_mutex);
 
-			if (decoder_stream && out_buf_get_fill(out_buf)
-					< PREBUFFER_THRESHOLD) {
+			if (decoder_stream && out_buf_get_fill(out_buf) < PREBUFFER_THRESHOLD)
+            {
 				prebuffering = 1;
-				io_prebuffer (decoder_stream,
-						options_get_int("Prebuffering")
-						* 1024);
+				io_prebuffer (decoder_stream, options_get_int("Prebuffering") * 1024);
 				prebuffering = 0;
 				status_msg ("Playing...");
 			}
 
-			decoded = f->decode (decoder_data, buf, sizeof(buf),
-					&new_sound_params);
+			decoded = f->decode (decoder_data, buf, sizeof(buf), &new_sound_params);
 
 			if (decoded)
-				decode_time += decoded / (float)(sfmt_Bps(
-							new_sound_params.fmt) *
-						new_sound_params.rate *
-						new_sound_params.channels);
+            {
+				decode_time += decoded / (float)(sfmt_Bps(new_sound_params.fmt) * new_sound_params.rate * new_sound_params.channels);
+            }
 
 			f->get_error (decoder_data, &err);
-			if (err.type != ERROR_OK) {
+			if (err.type != ERROR_OK) 
+            {
 				md5->okay = false;
-				if (err.type != ERROR_STREAM ||
-				    options_get_bool ("ShowStreamErrors"))
+				if (err.type != ERROR_STREAM || options_get_bool ("ShowStreamErrors"))
+                {
 					error ("%s", err.err);
+                }
 				decoder_error_clear (&err);
 			}
 
-			if (!decoded) {
+			/* cue track end */
+			if (end != -1 && decode_time >= end)
+            {
+				eof = 1;
+            }
+
+			if (!decoded) 
+            {
 				eof = true;
 				logit ("EOF from decoder");
 			}
-			else {
+			else
+            {
 				debug ("decoded %d bytes", decoded);
 				if (!sound_params_eq(new_sound_params, *sound_params))
+                {
 					sound_params_change = true;
+                }
 
-				bitrate_list_add (&bitrate_list, decode_time,
-						f->get_bitrate(decoder_data));
+				bitrate_list_add (&bitrate_list, decode_time, f->get_bitrate(decoder_data));
 				update_tags (f, decoder_data, decoder_stream);
 			}
 		}
@@ -685,8 +702,7 @@ static void log_md5_sum (const char *file, struct sound_params sound_params,
 #endif
 
 /* Play a file (disk file) using the given decoder. next_file is precached. */
-static void play_file (const char *file, const struct decoder *f,
-		const char *next_file, struct out_buf *out_buf)
+static void play_file (const char *file, const struct decoder *f, const char *next_file, struct out_buf *out_buf, const time_t start, const time_t end)
 {
 	void *decoder_data;
 	struct sound_params sound_params = { 0, 0, 0 };
@@ -780,12 +796,11 @@ static void play_file (const char *file, const struct decoder *f,
 		bitrate_list_init (&bitrate_list);
 	}
 
-	audio_plist_set_time (file, f->get_duration(decoder_data));
+	audio_plist_set_time (file, end != -1 ? end - start : f->get_duration(decoder_data));
 	audio_state_started_playing ();
 	precache_reset (&precache);
 
-	decode_loop (f, decoder_data, next_file, out_buf, &sound_params,
-			&md5, already_decoded_time);
+	decode_loop (f, decoder_data, next_file, out_buf, &sound_params, &md5, already_decoded_time, start, end);
 
 #if !defined(NDEBUG) && defined(DEBUG)
 	if (md5.okay) {
@@ -825,8 +840,7 @@ static void play_stream (const struct decoder *f, struct out_buf *out_buf)
 	else {
 		audio_state_started_playing ();
 		bitrate_list_init (&bitrate_list);
-		decode_loop (f, decoder_data, NULL, out_buf, &sound_params,
-				&null_md5, 0.0);
+		decode_loop (f, decoder_data, NULL, out_buf, &sound_params, &null_md5, 0.0, -1, -1);
 	}
 }
 
@@ -845,7 +859,7 @@ static void fill_callback (struct io_stream *s ATTR_UNUSED, size_t fill,
 
 /* Open a file, decode it and put output into the buffer. At the end, start
  * precaching next_file. */
-void player (const char *file, const char *next_file, struct out_buf *out_buf)
+void player (const char *file, const char *next_file, struct out_buf *out_buf, const time_t start, const time_t end)
 {
 	struct decoder *f;
 
@@ -898,7 +912,7 @@ void player (const char *file, const char *next_file, struct out_buf *out_buf)
 		}
 
 		ev_audio_start ();
-		play_file (file, f, next_file, out_buf);
+		play_file (file, f, next_file, out_buf, start, end);
 		ev_audio_stop ();
 	}
 
@@ -960,7 +974,7 @@ void player_seek (const int sec)
 void player_jump_to (const int sec)
 {
 	request = REQ_SEEK;
-	req_seek = sec;
+	req_seek = sec + audio_get_stime ();
 	LOCK (request_cond_mutex);
 	pthread_cond_signal (&request_cond);
 	UNLOCK (request_cond_mutex);

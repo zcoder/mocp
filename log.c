@@ -35,8 +35,7 @@ static int log_records_spilt = 0;
 static pthread_mutex_t logging_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 /* Put something into the log */
-void internal_logit (const char *file, const int line, const char *function,
-		const char *format, ...)
+void internal_logit (const char *file, const int line, const char *function, const char *format, ...)
 {
 	int len;
 	char *msg, time_str[20];
@@ -67,7 +66,7 @@ void internal_logit (const char *file, const int line, const char *function,
 	va_start (va, format);
 	len = vsnprintf (NULL, 0, format, va) + 1;
 	va_end (va);
-	msg = xmalloc (len);
+	msg = (char*)xmalloc (len);
 	va_start (va, format);
 	vsnprintf (msg, len, format, va);
 	va_end (va);
@@ -86,7 +85,7 @@ void internal_logit (const char *file, const int line, const char *function,
 
 		len = snprintf (NULL, 0, fmt, time_str, (unsigned)utc_time.tv_usec,
 		                              file, line, function, msg);
-		str = xmalloc (len + 1);
+		str = (char*)xmalloc (len + 1);
 		snprintf (str, len + 1, fmt, time_str, (unsigned)utc_time.tv_usec,
 		                             file, line, function, msg);
 

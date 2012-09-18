@@ -185,8 +185,10 @@ static int rb_compare (const void *a, const void *b, void *adata ATTR_UNUSED)
 {
 	struct menu_item *mia = (struct menu_item *)a;
 	struct menu_item *mib = (struct menu_item *)b;
+	char *str1 = mia->type == F_CUE_TRACK ? mia->title : mia->file;
+	char *str2 = mib->type == F_CUE_TRACK ? mib->title : mib->file;
 
-	return strcmp (mia->file, mib->file);
+	return strcmp (str1, str2);
 }
 
 static int rb_fname_compare (const void *key, const void *data,
@@ -194,8 +196,9 @@ static int rb_fname_compare (const void *key, const void *data,
 {
 	const char *fname = (const char *)key;
 	const struct menu_item *mi = (const struct menu_item *)data;
+	char *str = mi->type == F_CUE_TRACK ? mi->title : mi->file;
 
-	return strcmp (fname, mi->file);
+	return strcmp (fname, str);
 }
 
 /* menu_items must be malloc()ed memory! */
@@ -236,8 +239,7 @@ struct menu *menu_new (WINDOW *win, const int posx, const int posy,
 	return menu;
 }
 
-struct menu_item *menu_add (struct menu *menu, const char *title,
-		const enum file_type type, const char *file)
+struct menu_item *menu_add (struct menu *menu, const char *title, const enum file_type type, const char *file, const time_t start_time, const time_t end_time)
 {
 	struct menu_item *mi;
 
@@ -250,7 +252,8 @@ struct menu_item *menu_add (struct menu *menu, const char *title,
 	mi->type = type;
 	mi->file = xstrdup (file);
 	mi->num = menu->nitems;
-
+	mi->stime = start_time;
+	mi->etime = end_time;
 	mi->attr_normal = A_NORMAL;
 	mi->attr_sel = A_NORMAL;
 	mi->attr_marked = A_NORMAL;
@@ -290,7 +293,7 @@ static struct menu_item *menu_add_from_item (struct menu *menu,
 	assert (menu != NULL);
 	assert (mi != NULL);
 
-	new = menu_add (menu, mi->title, mi->type, mi->file);
+	new = menu_add (menu, mi->title, mi->type, mi->file, mi->stime, mi->etime);
 
 	new->attr_normal = mi->attr_normal;
 	new->attr_sel = mi->attr_sel;
@@ -455,18 +458,31 @@ static void make_item_visible (struct menu *menu, struct menu_item *mi)
 	assert (menu != NULL);
 	assert (mi != NULL);
 
-	if (mi->num < menu->top->num || mi->num >= menu->top->num + menu->height) {
-		menu->top = get_item_relative(mi, -menu->height/2);
+	if (mi->num < menu->top->num)
+    {
+		menu->top = mi;
+    }
+	else
+    {
+        if (mi->num >= menu->top->num + menu->height)
+        {
+		menu->top = get_item_relative (mi, -menu->height + 1);
+        }
+    }
 
-		if (menu->top->num > menu->nitems - menu->height)
-			menu->top = get_item_relative (menu->last,
-					-menu->height + 1);
-	}
-
-	if (menu->selected) {
-		if (menu->selected->num < menu->top->num ||
-				menu->selected->num >= menu->top->num + menu->height)
-			menu->selected = mi;
+	if (menu->selected)
+    {
+		if (menu->selected->num < menu->top->num)
+        {
+			menu->selected = menu->top;
+        }
+		else
+        {
+            if (menu->selected->num >= menu->top->num + menu->height)
+            {
+                menu->selected = get_item_relative (menu->top, menu->height - 1);
+            }
+        }
 	}
 }
 
@@ -673,6 +689,27 @@ enum file_type menu_item_get_type (const struct menu_item *mi)
 	return mi->type;
 }
 
+char *menu_item_get_title (const struct menu_item *mi)
+{
+       assert (mi != NULL);
+
+       return xstrdup (mi->title);
+}
+
+time_t menu_item_get_stime (const struct menu_item *mi)
+{
+       assert (mi != NULL);
+
+       return mi->stime;
+}
+
+time_t menu_item_get_etime (const struct menu_item *mi)
+{
+       assert (mi != NULL);
+
+       return mi->etime;
+}
+
 char *menu_item_get_file (const struct menu_item *mi)
 {
 	assert (mi != NULL);
@@ -758,7 +795,9 @@ static void menu_delete (struct menu *menu, struct menu_item *mi)
 		menu->top = mi->next ? mi->next : mi->prev;
 
 	if (mi->file)
-		rb_delete (&menu->search_tree, mi->file);
+    {
+		rb_delete (&menu->search_tree, mi->type == F_CUE_TRACK ? mi->title : mi->file);
+    }
 
 	menu->nitems--;
 	menu_renumber_items (menu);

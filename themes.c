@@ -74,6 +74,9 @@ static void set_default_colors ()
 	make_color (CLR_MENU_ITEM_PLAYLIST, COLOR_WHITE, COLOR_BLUE, A_BOLD);
 	make_color (CLR_MENU_ITEM_PLAYLIST_SELECTED, COLOR_WHITE, COLOR_BLACK,
 			A_BOLD);
+	make_color (CLR_MENU_ITEM_CUE_SHEET, COLOR_WHITE, COLOR_BLUE, A_BOLD);
+	make_color (CLR_MENU_ITEM_CUE_SHEET_SELECTED, COLOR_WHITE, COLOR_BLACK,
+			A_BOLD);
 	make_color (CLR_MENU_ITEM_FILE, COLOR_WHITE, COLOR_BLUE, A_NORMAL);
 	make_color (CLR_MENU_ITEM_FILE_SELECTED, COLOR_WHITE,
 			COLOR_BLACK, A_NORMAL);
@@ -117,6 +120,8 @@ static void set_bw_colors ()
 	colors[CLR_MENU_ITEM_DIR_SELECTED] = A_REVERSE;
 	colors[CLR_MENU_ITEM_PLAYLIST] = A_NORMAL;
 	colors[CLR_MENU_ITEM_PLAYLIST_SELECTED] = A_REVERSE;
+	colors[CLR_MENU_ITEM_CUE_SHEET] = A_NORMAL;
+	colors[CLR_MENU_ITEM_CUE_SHEET_SELECTED] = A_REVERSE;
 	colors[CLR_MENU_ITEM_FILE] = A_NORMAL;
 	colors[CLR_MENU_ITEM_FILE_SELECTED] = A_REVERSE;
 	colors[CLR_MENU_ITEM_FILE_MARKED] = A_BOLD;
@@ -168,6 +173,8 @@ static enum color_index find_color_element_name (const char *name)
 		{ "selected_directory", CLR_MENU_ITEM_DIR_SELECTED },
 		{ "playlist",		CLR_MENU_ITEM_PLAYLIST },
 		{ "selected_playlist",	CLR_MENU_ITEM_PLAYLIST_SELECTED },
+		{ "cue_sheet",          CLR_MENU_ITEM_CUE_SHEET },
+		{ "selected_cue_sheet", CLR_MENU_ITEM_CUE_SHEET_SELECTED },
 		{ "file",		CLR_MENU_ITEM_FILE },
 		{ "selected_file",	CLR_MENU_ITEM_FILE_SELECTED },
 		{ "marked_file",	CLR_MENU_ITEM_FILE_MARKED },

@@ -13,8 +13,7 @@ extern "C" {
 
 void files_init ();
 void files_cleanup ();
-int read_directory (const char *directory, lists_t_strs *dirs,
-		lists_t_strs *playlists, struct plist *plist);
+int read_directory (const char *directory, lists_t_strs *dirs, lists_t_strs *playlists, lists_t_strs *cue_sheets, struct plist *plist);
 int read_directory_recurr (const char *directory, struct plist *plist);
 void resolve_path (char *buf, const int size, const char *file);
 char *ext_pos (const char *file);
@@ -25,6 +24,7 @@ char *read_line (FILE *file);
 char *find_match_dir (char *dir);
 int file_exists (const char *file);
 time_t get_mtime (const char *file);
+time_t get_file_duration (const char *file);
 struct file_tags *read_file_tags (const char *file,
 		struct file_tags *present_tags, const int tags_sel);
 void switch_titles_file (struct plist *plist);

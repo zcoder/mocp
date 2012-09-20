@@ -222,8 +222,8 @@ int plist_add (struct plist *plist, const char *file_name)
 	plist->items[plist->num].queue_pos = 0;
 
 	if (file_name) {
-		rb_delete (&plist->search_tree, file_name);
-		rb_insert (&plist->search_tree, (void *)plist->num);
+//		rb_delete (&plist->search_tree, file_name);
+//		rb_insert (&plist->search_tree, (void *)plist->num);
 	}
 
 	plist->num++;
@@ -237,8 +237,8 @@ void plist_add_cue (struct plist *plist, const int pos, const char *title)
 {
     if (title) 
     {
-        rb_delete (&plist->search_tree, title);
-        rb_insert (&plist->search_tree, (void *) pos);
+  //      rb_delete (&plist->search_tree, title);
+  //      rb_insert (&plist->search_tree, (void *) pos);
     }
 }
 

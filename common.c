@@ -79,7 +79,7 @@ void internal_fatal (const char *file ATTR_UNUSED, int line ATTR_UNUSED,
 	if (im_server)
 		syslog (LOG_USER|LOG_ERR, "%s", msg);
 #endif
-
+    abort();
 	exit (EXIT_FATAL);
 }
 

@@ -1,6 +1,8 @@
 #ifndef CUE_SHEET_FILE_H
 #define CUE_SHEET_FILE_H
 
+#include "common.h"
+#include "playlist.h"
 
 #define NO_ERROR 0
 #define ERROR_PARSE 99990

@@ -798,7 +798,8 @@ static void update_curr_file ()
 {
     char *sname;
     enum file_type curr_type;
-    time_t stime, etime;
+    time_t stime;
+    time_t etime;
     sname = get_curr_file ();
     curr_type = get_curr_type ();
 
@@ -1841,7 +1842,7 @@ static void send_playlist (struct plist *plist, const int clear)
             {
                 send_time_to_srv (plist->items[i].stime);
                 send_time_to_srv (plist->items[i].etime);
-                send_str_to_srv (plist->items[i].title_tags);
+                send_str_to_srv (plist->items[i].title_tags); // см протокол если файл пусто то тагс гдето несостыковка
             }
             else
             {

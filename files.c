@@ -528,10 +528,10 @@ int read_directory_recurr (const char *directory, struct plist *plist)
 }
 
 /* Return the file extension position or NULL if the file has no extension. */
-char *ext_pos (const char *file)
+const char *ext_pos (const char *file)
 {
-	char *ext = strrchr (file, '.');
-	char *slash = strrchr (file, '/');
+	const char *ext = strrchr (file, '.');
+	const char *slash = strrchr (file, '/');
 
 	/* don't treat dot in ./file or /.file as a dot before extension */
 	if (ext && (!slash || slash < ext) && ext != file && *(ext-1) != '/')

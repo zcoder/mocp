@@ -1169,8 +1169,7 @@ static void make_help ()
 	unsigned int i;
 
 	for (i = 0; i < COMMANDS_NUM; i++) {
-		help[i] = xmalloc (sizeof(char) *
-				(HELP_INDENT + strlen(commands[i].help) + 1));
+		help[i] = (char*)xmalloc (sizeof(char) * (HELP_INDENT + strlen(commands[i].help) + 1));
 		strncpy (help[i], get_command_keys(i), HELP_INDENT);
 		if (strlen(help[i]) < HELP_INDENT)
 			memset (help[i] + strlen(help[i]), ' ',

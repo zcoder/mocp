@@ -154,7 +154,7 @@ static int rb_fname_compare (const void *key, const void *data, void *adata)
 }
 
 /* Return 1 if an item has 'deleted' flag. */
-inline int plist_deleted (const struct plist *plist, const int num)
+int plist_deleted (const struct plist *plist, const int num)
 {
 	assert (LIMIT(num, plist->num));
 

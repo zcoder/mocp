@@ -81,7 +81,8 @@ lists_t_strs *lyrics_load_file (const char *filename)
 /* Given an audio's file name, load lyrics from the default lyrics file name. */
 void lyrics_autoload (const char *filename)
 {
-	char *lyrics_filename, *extn;
+	char *lyrics_filename;
+    const char *extn;
 
 	assert (!raw_lyrics);
 	assert (lyrics_message);
@@ -104,7 +105,7 @@ void lyrics_autoload (const char *filename)
 	lyrics_filename = xstrdup (filename);
 	extn = ext_pos (lyrics_filename);
 	if (extn) {
-		*--extn = '\0';
+        lyrics_filename[(extn - 1) - lyrics_filename] = '\0';
 		raw_lyrics = lyrics_load_file (lyrics_filename);
 	}
 	else
@@ -221,7 +222,7 @@ lists_t_strs *lyrics_format (int height, int width)
 		else if (this_line[len - 1] != '\n') {
 			char *new_line;
 
-			new_line = xmalloc (len + 2);
+			new_line = (char*)xmalloc (len + 2);
 			strcpy (new_line, this_line);
 			strcat (new_line, "\n");
 			lists_strs_swap (result, ix, new_line);

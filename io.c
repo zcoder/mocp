@@ -111,8 +111,7 @@ static ssize_t io_read_fd (struct io_stream *s, const int dont_move, void *buf,
 
 /* Read the data from the stream resource.  If dont_move was set, the stream
  * position is unchanged. */
-static ssize_t io_internal_read (struct io_stream *s, const int dont_move,
-		char *buf, size_t count)
+static ssize_t io_internal_read (struct io_stream *s, const int dont_move, char *buf, size_t count)
 {
 	ssize_t res = 0;
 
@@ -480,7 +479,7 @@ struct io_stream *io_open (const char *file, const int buffered)
 
 	assert (file != NULL);
 
-	s = xmalloc (sizeof(struct io_stream));
+	s = (io_stream*)xmalloc (sizeof(io_stream));
 	s->errno_val = 0;
 	s->read_error = 0;
 	s->strerror = NULL;
@@ -561,7 +560,7 @@ static ssize_t io_peek_internal (struct io_stream *s, void *buf, size_t count)
 		pthread_cond_wait (&s->buf_fill_cond, &s->buf_mutex);
 	}
 
-	received = fifo_buf_peek (&s->buf, buf, count);
+	received = fifo_buf_peek (&s->buf, (char*)buf, count);
 	debug ("Read %d bytes", (int)received);
 
 	UNLOCK (s->buf_mutex);
@@ -597,8 +596,7 @@ static ssize_t io_read_buffered (struct io_stream *s, void *buf, size_t count)
 			&& ((!s->eof && !s->read_error)
 				|| fifo_buf_get_fill(&s->buf))) {
 		if (fifo_buf_get_fill(&s->buf)) {
-			received += fifo_buf_get (&s->buf, buf + received,
-					count - received);
+			received += fifo_buf_get (&s->buf, (char*)(buf + received), count - received);
 			debug ("Read %d bytes so far", (int)received);
 			pthread_cond_signal (&s->buf_free_cond);
 		}
@@ -625,7 +623,7 @@ static ssize_t io_read_unbuffered (struct io_stream *s, const int dont_move,
 
 	assert (!s->eof);
 
-	res = io_internal_read (s, dont_move, buf, count);
+	res = io_internal_read (s, dont_move, (char*)buf, count);
 
 	if (!dont_move) {
 		s->pos += res;

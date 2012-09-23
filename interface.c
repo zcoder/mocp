@@ -4584,9 +4584,10 @@ void interface_cmdline_formatted_info (const int server_sock,
 
 		if (curr_file.tags && curr_type != F_CUE_TRACK)
         {
-			str_info.artist = curr_file.tags->artist ? curr_file.tags->artist : "";
-			str_info.song =	curr_file.tags->title ? curr_file.tags->title : "";
-			str_info.album = curr_file.tags->album ? curr_file.tags->album : "";
+            char *empty = "";
+			str_info.artist = curr_file.tags->artist ? curr_file.tags->artist : empty;
+			str_info.song =	curr_file.tags->title ? curr_file.tags->title : empty;
+			str_info.album = curr_file.tags->album ? curr_file.tags->album : empty;
 		}
 
 		if (curr_file.tags->time != -1)

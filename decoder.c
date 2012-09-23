@@ -340,7 +340,7 @@ static char *extract_decoder_name (const char *filename)
 	ptr = strpbrk (filename, "_.-");
 	if (ptr)
 		len = ptr - filename;
-	result = xmalloc (len + 1);
+	result = (char*)xmalloc (len + 1);
 	strncpy (result, filename, len);
 	result[len] = 0x00;
 
@@ -435,7 +435,7 @@ static int lt_load_plugin (const char *file, lt_ptr debug_info_ptr)
 		return 0;
 	}
 
-	init_func = lt_dlsym (plugins[plugins_num].handle, "plugin_init");
+	init_func = (plugin_init_func)lt_dlsym (plugins[plugins_num].handle, "plugin_init");
 	if (!init_func) {
 		fprintf (stderr, "No init function in the plugin!\n");
 		if (lt_dlclose (plugins[plugins_num].handle))
@@ -462,12 +462,11 @@ static int lt_load_plugin (const char *file, lt_ptr debug_info_ptr)
 
 	/* Is the Vorbis decoder using Tremor? */
 	if (!strcmp (plugins[plugins_num].name, "vorbis")) {
-		bool (*vorbis_is_tremor)();
-
-		vorbis_is_tremor = lt_dlsym (plugins[plugins_num].handle,
-		                             "vorbis_is_tremor");
-		if (vorbis_is_tremor)
-			have_tremor = vorbis_is_tremor ();
+		typedef bool (*vorbis_is_tremor)();
+        vorbis_is_tremor vorbis_is_tremor_func;
+		vorbis_is_tremor_func = (vorbis_is_tremor)lt_dlsym (plugins[plugins_num].handle, "vorbis_is_tremor");
+		if (vorbis_is_tremor_func)
+			have_tremor = vorbis_is_tremor_func ();
 	}
 
 	debug ("Loaded %s decoder", plugins[plugins_num].name);

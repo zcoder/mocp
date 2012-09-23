@@ -832,7 +832,7 @@ int audio_send_pcm (const char *buf, const size_t size)
 
 	if (equalizer_is_active ())
 	{
-		equalized = xmalloc (size);
+		equalized = (char*)xmalloc (size);
 		memcpy (equalized, buf, size);
 
 		equalizer_process_buffer (equalized, size, &driver_sound_params);
@@ -848,7 +848,7 @@ int audio_send_pcm (const char *buf, const size_t size)
 		}
 		else
 		{
-			softmixed = xmalloc (size);
+			softmixed = (char*)xmalloc (size);
 			memcpy (softmixed, buf, size);
 		}
 

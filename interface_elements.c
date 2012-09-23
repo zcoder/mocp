@@ -33,7 +33,9 @@
 
 /* This breaks compilation on FreeBSD 5.4, so use it only on Linux. */
 #ifdef LINUX
+#ifndef _XOPEN_SOURCE_EXTENDED
 # define _XOPEN_SOURCE_EXTENDED /* for wget_wch() */
+#endif
 #endif
 
 #ifdef HAVE_NCURSESW_H
@@ -438,7 +440,7 @@ static void entry_init (struct entry *e, const enum entry_type type,
 	e->text_ucs[0] = L'\0';
 	e->saved_ucs[0] = L'\0';
 	e->file = NULL;
-	e->title = xmalloc (strlen (title) + 2);
+	e->title = (char*)xmalloc (strlen (title) + 2);
 	strcpy (e->title, title);
 	if (e->title[strlen (e->title) - 1] != ':' &&
 	    e->title[strlen (e->title) - 1] != '?')
@@ -2672,7 +2674,7 @@ static void bar_init (struct bar *b, const int width, const char *title,
 	b->empty_color = empty_color;
 
 	if (show_val) {
-		b->orig_title = xmalloc (b->width + 1);
+		b->orig_title = (char*)xmalloc (b->width + 1);
 		bar_set_title (b, title);
 	} else {
 		b->orig_title = NULL;
@@ -2717,7 +2719,7 @@ static void bar_resize (struct bar *b, const int width)
 	assert (width > 5 && width < (int)sizeof(b->title));
 
 	if (b->show_val && b->width < width) {
-		char *new_title = xmalloc (width + 1);
+		char *new_title = (char*)xmalloc (width + 1);
 		strcpy (new_title, b->orig_title);
 		free (b->orig_title);
 		b->orig_title = new_title;
@@ -3084,7 +3086,7 @@ static void info_win_set_block_title (struct info_win *w)
 		else
 			end_pos = w->time_bar.width - 1;
 
-		new_title = xmalloc(w->time_bar.width + 1);
+		new_title = (char*)xmalloc(w->time_bar.width + 1);
 		memset(new_title, ' ', w->time_bar.width);
 		decorators = options_get_str ("BlockDecorators");
 		if (start_pos == end_pos) {

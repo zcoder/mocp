@@ -1081,9 +1081,9 @@ static int read_setup(char *name, char *desc, t_eq_setup **sp)
       if(s->bcount>=(max_values-1))
       {
         max_values*=2;
-        s->cf=xrealloc(s->cf, max_values*sizeof(float));
-        s->bw=xrealloc(s->bw, max_values*sizeof(float));
-        s->dg=xrealloc(s->dg, max_values*sizeof(float));
+        s->cf=(float*)xrealloc(s->cf, max_values*sizeof(float));
+        s->bw=(float*)xrealloc(s->bw, max_values*sizeof(float));
+        s->dg=(float*)xrealloc(s->dg, max_values*sizeof(float));
       }
 
       s->cf[s->bcount]=cf;

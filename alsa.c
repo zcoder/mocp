@@ -167,7 +167,7 @@ static void handle_mixer_events (snd_mixer_t *mixer_handle)
 		struct pollfd *fds;
 		int err;
 
-		fds = xcalloc (count, sizeof(struct pollfd));
+		fds = (pollfd*)xcalloc (count, sizeof(struct pollfd));
 
 		if ((err = snd_mixer_poll_descriptors(mixer_handle, fds,
 						count)) < 0)
@@ -205,11 +205,11 @@ static int alsa_read_mixer_raw (snd_mixer_elem_t *elem)
 		handle_mixer_events (mixer_handle);
 
 		for (i = 0; i < SND_MIXER_SCHN_LAST; i++)
-			if (snd_mixer_selem_has_playback_channel (elem, i)) {
+			if (snd_mixer_selem_has_playback_channel (elem, (snd_mixer_selem_channel_id_t)i)) {
 				long vol;
 
 				nchannels++;
-				err = snd_mixer_selem_get_playback_volume (elem, i, &vol);
+				err = snd_mixer_selem_get_playback_volume (elem, (snd_mixer_selem_channel_id_t)i, &vol);
 				if (err < 0) {
 					error ("Can't read mixer: %s",
 							snd_strerror(err));
@@ -564,7 +564,7 @@ static void alsa_close ()
 		play_buf_chunks ();
 	}
 
-	params.format = 0;
+	params.format = (snd_pcm_format_t)0;
 	params.rate = 0;
 	params.channels = 0;
 	snd_pcm_close (handle);

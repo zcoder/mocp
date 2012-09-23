@@ -143,12 +143,12 @@ char *str_repl (char *target, const char *oldstr, const char *newstr)
 		p = needle - target;
 		if (target_len + 1 > target_max) {
 			target_max = MAX(target_len + 1, target_max * 2);
-			target = xrealloc(target, target_max);
+			target = (char*)xrealloc(target, target_max);
 		}
 		memmove(target + p + newstr_len, target + p + oldstr_len, target_len - p - newstr_len + 1);
 		memcpy(target + p, newstr, newstr_len);
 	}
-	target = xrealloc(target, target_len + 1);
+	target = (char*)xrealloc(target, target_len + 1);
 	return target;
 }
 
@@ -174,7 +174,7 @@ char *trim (const char *src, size_t len)
 		return NULL;
 
 	last += 1;
-	result = xcalloc (last - first + 1, sizeof (char));
+	result = (char*)xcalloc (last - first + 1, sizeof (char));
 	strncpy (result, first, last - first);
 	result[last - first] = 0x00;
 

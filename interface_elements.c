@@ -2261,7 +2261,7 @@ static void main_win_handle_help_key (struct main_win *w,
 
 	get_keys_help (&help_lines);
 
-	if ((k->type == IFACE_KEY_FUNCTION && (
+	if ((k->type == iface_key::IFACE_KEY_FUNCTION && (
 					k->key.func == KEY_DOWN
 					|| k->key.func == KEY_NPAGE))
 			|| (k->key.ucs == '\n')) {
@@ -2269,7 +2269,7 @@ static void main_win_handle_help_key (struct main_win *w,
 			w->help_screen_top++;
 	}
 	else {
-		if (k->type == IFACE_KEY_FUNCTION && (k->key.func == KEY_UP
+		if (k->type == iface_key::IFACE_KEY_FUNCTION && (k->key.func == KEY_UP
 					|| k->key.func == KEY_PPAGE)) {
 			if (w->help_screen_top > 0)
 				w->help_screen_top--;
@@ -2290,7 +2290,7 @@ static void main_win_handle_lyrics_key (struct main_win *w,
 	assert (w != NULL);
 	assert (w->in_lyrics);
 
-	if ((k->type == IFACE_KEY_FUNCTION && (
+	if ((k->type == iface_key::IFACE_KEY_FUNCTION && (
 					k->key.func == KEY_DOWN
 					|| k->key.func == KEY_NPAGE))
 			|| (k->key.ucs == '\n')) {
@@ -2301,7 +2301,7 @@ static void main_win_handle_lyrics_key (struct main_win *w,
 		lists_strs_free (lyrics_array);
 	}
 	else {
-		if (k->type == IFACE_KEY_FUNCTION && (k->key.func == KEY_UP
+		if (k->type == iface_key::IFACE_KEY_FUNCTION && (k->key.func == KEY_UP
 					|| k->key.func == KEY_PPAGE)) {
 			if (w->lyrics_screen_top > 0)
 				w->lyrics_screen_top--;
@@ -3587,7 +3587,7 @@ static void info_win_entry_handle_key (struct info_win *iw, struct main_win *mw,
 	if (type == ENTRY_SEARCH) {
 		char *text;
 
-		if (k->type == IFACE_KEY_CHAR) {
+		if (k->type == iface_key::IFACE_KEY_CHAR) {
 			if (iswprint(k->key.ucs)) {
 				entry_add_char (&iw->entry, k->key.ucs);
 				text = entry_get_text (&iw->entry);
@@ -3620,7 +3620,7 @@ static void info_win_entry_handle_key (struct info_win *iw, struct main_win *mw,
 		}
 	}
 	else {
-		if (k->type == IFACE_KEY_CHAR) {
+		if (k->type == iface_key::IFACE_KEY_CHAR) {
 			if (iswprint(k->key.ucs))
 				entry_add_char (&iw->entry, k->key.ucs);
 		}
@@ -3932,12 +3932,12 @@ void iface_get_key (struct iface_key *k)
 
 	if (ch < 32 && ch != '\n' && ch != '\t') {
 		/* Unprintable, generally control sequences */
-		k->type = IFACE_KEY_FUNCTION;
+		k->type = iface_key::IFACE_KEY_FUNCTION;
 		k->key.func = ch;
 	}
 	else if (ch == 0x7f) {
 		/* Workaround for backspace on many terminals */
-		k->type = IFACE_KEY_FUNCTION;
+		k->type = iface_key::IFACE_KEY_FUNCTION;
 		k->key.func = KEY_BACKSPACE;
 	}
 	else if (ch < 255) {
@@ -3953,16 +3953,16 @@ void iface_get_key (struct iface_key *k)
 		if (ch == KEY_ESCAPE) {
 			if((meta = wgetch(main_win.win)) != ERR)
 				ch = meta | META_KEY_FLAG;
-			k->type = IFACE_KEY_FUNCTION;
+			k->type = iface_key::IFACE_KEY_FUNCTION;
 			k->key.func = ch;
 		}
 		else {
-			k->type = IFACE_KEY_CHAR;
+			k->type = iface_key::IFACE_KEY_CHAR;
 			k->key.ucs = ch;
 		}
 	}
 	else {
-		k->type = IFACE_KEY_FUNCTION;
+		k->type = iface_key::IFACE_KEY_FUNCTION;
 		k->key.func = ch;
 	}
 }
@@ -3970,7 +3970,7 @@ void iface_get_key (struct iface_key *k)
 /* Return a non zero value if the key is not a real key - KEY_RESIZE. */
 int iface_key_is_resize (const struct iface_key *k)
 {
-	return k->type == IFACE_KEY_FUNCTION && k->key.func == KEY_RESIZE;
+	return k->type == iface_key::IFACE_KEY_FUNCTION && k->key.func == KEY_RESIZE;
 }
 
 /* Handle a key command for the menu. */

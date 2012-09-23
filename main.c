@@ -24,7 +24,9 @@
 #include <sys/un.h>
 #include <unistd.h>
 #include <signal.h>
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
 #include <getopt.h>
 #include <errno.h>
 #include <unistd.h>

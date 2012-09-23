@@ -17,32 +17,36 @@
  */
 
 #ifdef HAVE_CONFIG_H
-# include "config.h"
+#include "config.h"
 #endif
 
 /* for lrintf() */
-#define _ISOC9X_SOURCE  1
-#define _ISOC99_SOURCE  1
-#define __USE_ISOC9X    1
-#define __USE_ISOC99    1
+//#define _ISOC9X_SOURCE  1
+//#define _ISOC99_SOURCE  1
+//#define __USE_ISOC9X    1
+//#define __USE_ISOC99    1
 
 #include <assert.h>
+
 #ifdef HAVE_STDINT_H
-# include <stdint.h>
+#include <stdint.h>
 #endif
+
 #ifdef HAVE_LIMITS_H
-# include <limits.h>
+#include <limits.h>
 #endif
+
 #ifdef HAVE_INTTYPES_H
-# include <inttypes.h>
+#include <inttypes.h>
 #endif
+
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
 #include <strings.h>
 
 #ifdef HAVE_SAMPLERATE
-# include <samplerate.h>
+#include <samplerate.h>
 #endif
 
 #define DEBUG
@@ -82,7 +86,7 @@
 #define INT16_NE_TO_LE		INT16_LE_TO_NE (l)
 #define INT32_NE_TO_BE		INT32_BE_TO_NE (l)
 #endif
-
+#define UINT8_MAX (255)
 static void float_to_u8 (const float *in, unsigned char *out, const size_t samples)
 {
 	size_t i;
@@ -131,6 +135,7 @@ static void float_to_s8 (const float *in, char *out, const size_t samples)
 	}
 }
 
+#define UINT16_MAX (65535)
 static void float_to_u16 (const float *in, unsigned char *out,
 		const size_t samples)
 {
@@ -691,27 +696,27 @@ static char *mono_to_stereo (const char *mono, const size_t size,
 static int16_t *s32_to_s16 (int32_t *in, const size_t samples)
 {
 	size_t i;
-	int16_t *new;
+	int16_t *new_samples;
 
-	new = (int16_t *)xmalloc (samples * 2);
+	new_samples = (int16_t *)xmalloc (samples * 2);
 
 	for (i = 0; i < samples; i++)
-		new[i] = in[i] >> 16;
+		new_samples[i] = in[i] >> 16;
 
-	return new;
+	return new_samples;
 }
 
 static uint16_t *u32_to_u16 (uint32_t *in, const size_t samples)
 {
 	size_t i;
-	uint16_t *new;
+	uint16_t *new_samples;
 
-	new = (uint16_t *)xmalloc (samples * 2);
+	new_samples = (uint16_t *)xmalloc (samples * 2);
 
 	for (i = 0; i < samples; i++)
-		new[i] = in[i] >> 16;
+		new_samples[i] = in[i] >> 16;
 
-	return new;
+	return new_samples;
 }
 
 /* Do the sound conversion.  buf of length size is the sample buffer to

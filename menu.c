@@ -293,22 +293,22 @@ struct menu_item *menu_add (struct menu *menu, const char *title, const enum fil
 static struct menu_item *menu_add_from_item (struct menu *menu,
 		const struct menu_item *mi)
 {
-	struct menu_item *new;
+	struct menu_item *new_item;
 
 	assert (menu != NULL);
 	assert (mi != NULL);
 
-	new = menu_add (menu, mi->title, mi->type, mi->file, mi->stime, mi->etime);
+	new_item = menu_add (menu, mi->title, mi->type, mi->file, mi->stime, mi->etime);
 
-	new->attr_normal = mi->attr_normal;
-	new->attr_sel = mi->attr_sel;
-	new->attr_marked = mi->attr_marked;
-	new->attr_sel_marked = mi->attr_sel_marked;
+	new_item->attr_normal = mi->attr_normal;
+	new_item->attr_sel = mi->attr_sel;
+	new_item->attr_marked = mi->attr_marked;
+	new_item->attr_sel_marked = mi->attr_sel_marked;
 
-	strncpy(new->time, mi->time, FILE_TIME_STR_SZ);
-	strncpy(new->format, mi->format, FILE_FORMAT_SZ);
+	strncpy(new_item->time, mi->time, FILE_TIME_STR_SZ);
+	strncpy(new_item->format, mi->format, FILE_FORMAT_SZ);
 
-	return new;
+	return new_item;
 }
 
 static struct menu_item *get_item_relative (struct menu_item *mi,
@@ -564,29 +564,29 @@ void menu_unmark_item (struct menu *menu)
 /* Make a new menu from elements matching pattern. */
 struct menu *menu_filter_pattern (const struct menu *menu, const char *pattern)
 {
-	struct menu *new;
+	struct menu *new_menu;
 	const struct menu_item *mi;
 
 	assert (menu != NULL);
 	assert (pattern != NULL);
 
-	new = menu_new (menu->win, menu->posx, menu->posy, menu->width,
+	new_menu = menu_new (menu->win, menu->posx, menu->posy, menu->width,
 			menu->height);
-	menu_set_show_time (new, menu->show_time);
-	menu_set_show_format (new, menu->show_format);
-	menu_set_info_attr_normal (new, menu->info_attr_normal);
-	menu_set_info_attr_sel (new, menu->info_attr_sel);
-	menu_set_info_attr_marked (new, menu->info_attr_marked);
-	menu_set_info_attr_sel_marked (new, menu->info_attr_sel_marked);
+	menu_set_show_time (new_menu, menu->show_time);
+	menu_set_show_format (new_menu, menu->show_format);
+	menu_set_info_attr_normal (new_menu, menu->info_attr_normal);
+	menu_set_info_attr_sel (new_menu, menu->info_attr_sel);
+	menu_set_info_attr_marked (new_menu, menu->info_attr_marked);
+	menu_set_info_attr_sel_marked (new_menu, menu->info_attr_sel_marked);
 
 	for (mi = menu->items; mi; mi = mi->next)
 		if (strcasestr(mi->title, pattern))
-			menu_add_from_item (new, mi);
+			menu_add_from_item (new_menu, mi);
 
 	if (menu->marked)
-		menu_mark_item (new, menu->marked->file);
+		menu_mark_item (new_menu, menu->marked->file);
 
-	return new;
+	return new_menu;
 }
 
 void menu_item_set_attr_normal (struct menu_item *mi, const int attr)

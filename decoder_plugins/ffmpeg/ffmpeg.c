@@ -20,6 +20,8 @@
 #include <string.h>
 #include <assert.h>
 #ifdef HAVE_STDINT_H
+#define __STDC_LIMIT_MACROS
+#define __STDC_CONSTANT_MACROS
 # include <stdint.h>
 #endif
 #ifdef HAVE_INTTYPES_H

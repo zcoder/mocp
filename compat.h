@@ -2,6 +2,8 @@
 #define COMPAT_H
 
 #ifdef HAVE_STDINT_H
+#define __STDC_LIMIT_MACROS
+#define __STDC_CONSTANT_MACROS
 # include <stdint.h>
 #endif
 #ifdef HAVE_LIMITS_H
@@ -35,10 +37,6 @@
 # define INT8_MIN	(-128)
 #endif
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #ifndef HAVE_STRCASESTR
 char *strcasestr (const char *haystack, const char *needle);
 #endif
@@ -48,9 +46,5 @@ int strerror_r (int errnum, char *buf, size_t n);
 #endif
 
 void compat_cleanup ();
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

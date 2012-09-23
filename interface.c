@@ -2356,7 +2356,7 @@ static char *make_dir (const char *str)
 
 static void entry_key_go_dir (const struct iface_key *k)
 {
-	if (k->type == IFACE_KEY_CHAR && k->key.ucs == '\t') {
+	if (k->type == iface_key::IFACE_KEY_CHAR && k->key.ucs == '\t') {
 		char *dir;
 		char *complete_dir;
 		char buf[PATH_MAX+1];
@@ -2378,7 +2378,7 @@ static void entry_key_go_dir (const struct iface_key *k)
 		iface_entry_set_text (buf);
 		free (dir);
 	}
-	else if (k->type == IFACE_KEY_CHAR && k->key.ucs == '\n') {
+	else if (k->type == iface_key::IFACE_KEY_CHAR && k->key.ucs == '\n') {
 		char *entry_text = iface_entry_get_text ();
 
 		if (entry_text[0]) {
@@ -2454,7 +2454,7 @@ static char *strip_white_spaces (const char *str)
 
 static void entry_key_go_url (const struct iface_key *k)
 {
-	if (k->type == IFACE_KEY_CHAR && k->key.ucs == '\n') {
+	if (k->type == iface_key::IFACE_KEY_CHAR && k->key.ucs == '\n') {
 		char *entry_text = iface_entry_get_text ();
 
 		if (entry_text[0]) {
@@ -2519,7 +2519,7 @@ static void add_url_to_plist (const char *url)
 
 static void entry_key_add_url (const struct iface_key *k)
 {
-	if (k->type == IFACE_KEY_CHAR && k->key.ucs == '\n') {
+	if (k->type == iface_key::IFACE_KEY_CHAR && k->key.ucs == '\n') {
 		char *entry_text = iface_entry_get_text ();
 
 		if (entry_text[0]) {
@@ -2544,7 +2544,7 @@ static void entry_key_add_url (const struct iface_key *k)
 
 static void entry_key_search (const struct iface_key *k)
 {
-	if (k->type == IFACE_KEY_CHAR && k->key.ucs == '\n') 
+	if (k->type == iface_key::IFACE_KEY_CHAR && k->key.ucs == '\n') 
     {
         enum file_type type = iface_curritem_get_type ();
         char *title = iface_curritem_get_title ();
@@ -2597,7 +2597,7 @@ static void save_playlist (const char *file, const char *cwd,
 
 static void entry_key_plist_save (const struct iface_key *k)
 {
-	if (k->type == IFACE_KEY_CHAR && k->key.ucs == '\n') {
+	if (k->type == iface_key::IFACE_KEY_CHAR && k->key.ucs == '\n') {
 		char *text = iface_entry_get_text ();
 
 		iface_entry_disable ();
@@ -2641,7 +2641,7 @@ static void entry_key_plist_save (const struct iface_key *k)
 
 static void entry_key_plist_overwrite (const struct iface_key *k)
 {
-	if (k->type == IFACE_KEY_CHAR && toupper(k->key.ucs) == 'Y') {
+	if (k->type == iface_key::IFACE_KEY_CHAR && toupper(k->key.ucs) == 'Y') {
 		char *file = iface_entry_get_file ();
 
 		assert (file != NULL);
@@ -2654,7 +2654,7 @@ static void entry_key_plist_overwrite (const struct iface_key *k)
 
 		free (file);
 	}
-	else if (k->type == IFACE_KEY_CHAR && toupper(k->key.ucs) == 'N') {
+	else if (k->type == iface_key::IFACE_KEY_CHAR && toupper(k->key.ucs) == 'N') {
 		iface_entry_disable ();
 		iface_message ("Not overwriting.");
 	}
@@ -2662,7 +2662,7 @@ static void entry_key_plist_overwrite (const struct iface_key *k)
 
 static void entry_key_user_query (const struct iface_key *k)
 {
-	if (k->type == IFACE_KEY_CHAR && k->key.ucs == '\n') {
+	if (k->type == iface_key::IFACE_KEY_CHAR && k->key.ucs == '\n') {
 		char *entry_text = iface_entry_get_text ();
 		iface_entry_disable ();
 		iface_user_reply (entry_text);
@@ -3986,26 +3986,26 @@ void interface_cmdline_append (int server_sock, lists_t_strs *args)
 
 	if (options_get_int("SyncPlaylist")) {
 		struct plist clients_plist;
-		struct plist new;
+		struct plist new_plist;
 
 		plist_init (&clients_plist);
-		plist_init (&new);
+		plist_init (&new_plist);
 
 		if (!getcwd(cwd, sizeof(cwd)))
 			fatal ("Can't get CWD: %s", strerror(errno));
 
 		if (recv_server_plist(&clients_plist)) {
-			add_recursively (&new, args);
-			plist_sort_fname (&new);
+			add_recursively (&new_plist, args);
+			plist_sort_fname (&new_plist);
 
 			send_int_to_srv (CMD_LOCK);
 
-			plist_remove_common_items (&new, &clients_plist);
-			send_items_to_clients (&new);
+			plist_remove_common_items (&new_plist, &clients_plist);
+			send_items_to_clients (&new_plist);
 
 			if (get_server_plist_serial()
 					== plist_get_serial(&clients_plist))
-				send_playlist (&new, 0);
+				send_playlist (&new_plist, 0);
 			send_int_to_srv (CMD_UNLOCK);
 		}
 		else {
@@ -4019,19 +4019,19 @@ void interface_cmdline_append (int server_sock, lists_t_strs *args)
 					plist_load (&saved_plist,
 						create_file_name (PLAYLIST_FILE),
 						cwd, 1);
-			add_recursively (&new, args);
-			plist_sort_fname (&new);
+			add_recursively (&new_plist, args);
+			plist_sort_fname (&new_plist);
 
 			send_int_to_srv (CMD_LOCK);
-			plist_remove_common_items (&new, &saved_plist);
+			plist_remove_common_items (&new_plist, &saved_plist);
 			if (plist_get_serial(&saved_plist))
 				plist_set_serial(&saved_plist,
 						get_safe_serial());
-			plist_set_serial(&new, plist_get_serial(&saved_plist));
-			send_playlist (&new, 0);
+			plist_set_serial(&new_plist, plist_get_serial(&saved_plist));
+			send_playlist (&new_plist, 0);
 			send_int_to_srv (CMD_UNLOCK);
 
-			plist_cat (&saved_plist, &new);
+			plist_cat (&saved_plist, &new_plist);
 			if (options_get_int("SavePlaylist")) {
 				fill_tags (&saved_plist, TAGS_COMMENTS
 						| TAGS_TIME, 1);
@@ -4044,7 +4044,7 @@ void interface_cmdline_append (int server_sock, lists_t_strs *args)
 		}
 
 		plist_free (&clients_plist);
-		plist_free (&new);
+		plist_free (&new_plist);
 	}
 }
 

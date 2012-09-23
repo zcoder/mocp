@@ -25,10 +25,13 @@
 #ifdef HAVE_CONFIG_H
   #include "config.h"
 #endif
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
 #include <stdio.h>
 #include <string.h>
 #ifdef HAVE_STDINT_H
+#define __STDC_LIMIT_MACROS
 # include <stdint.h>
 #endif
 #ifdef HAVE_LIMITS_H

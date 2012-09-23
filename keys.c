@@ -898,7 +898,7 @@ enum key_cmd get_key_cmd (const enum key_context context, const struct iface_key
 	int k;
 	unsigned int i;
 
-	k = (key->type == IFACE_KEY_CHAR) ? key->key.ucs : key->key.func;
+	k = (key->type == iface_key::IFACE_KEY_CHAR) ? key->key.ucs : key->key.func;
 
 	for (i = 0; i < COMMANDS_NUM; i++)
 		if (commands[i].context == context) {

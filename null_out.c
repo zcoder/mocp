@@ -35,7 +35,7 @@ static void null_close ()
 
 static int null_play (const char *buff ATTR_UNUSED, const size_t size)
 {
-	usleep (size * 1000000.0 / audio_get_bps(params.fmt));
+	usleep (size * 1000000.0 / audio_get_bps(/*params.fmt*/));
 	return size;
 }
 

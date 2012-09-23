@@ -469,6 +469,7 @@ struct plist_item *recv_item (int sock)
 				free (item->title_tags);
 			free (item->file);
 			tags_free (item->tags);
+            free (item);
 			return NULL;
 		}
 
@@ -476,9 +477,7 @@ struct plist_item *recv_item (int sock)
         {
             logit ("Error while receiving stime");
             if (item->title_tags)
-            {
-                    free (item->title_tags);
-            }
+                free (item->title_tags);
             free (item->file);
             tags_free (item->tags);
             free (item);
@@ -489,7 +488,7 @@ struct plist_item *recv_item (int sock)
             if (item->stime != -1)
             {
                 item->type = F_CUE_TRACK;
-                item->tags->title = item->title_tags; //TODO: check this
+                item->tags->title = xstrdup(item->title_tags); //TODO: check this
             }
         }
 
@@ -497,9 +496,7 @@ struct plist_item *recv_item (int sock)
         {
             logit ("Error while receiving etime");
             if (item->title_tags)
-            {
-                    free (item->title_tags);
-            }
+                free (item->title_tags);
             free (item->file);
             tags_free (item->tags);
             free (item);

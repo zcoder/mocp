@@ -74,7 +74,8 @@ struct plist
 
 void plist_init (struct plist *plist);
 int plist_add (struct plist *plist, const char *file_name);
-void plist_set_cue(struct plist *plist, const int i, const time_t start_time, const time_t end_time, const char *title, const char *file_name);
+void plist_add_cue (struct plist *plist, const plist_t_item_ix pos, const char *title);
+void plist_set_cue (struct plist *plist, const plist_t_item_ix i, const time_t start_time, const time_t end_time, const char *title, const char *file_name);
 int plist_add_from_item (struct plist *plist, const struct plist_item *item);
 char *plist_get_file (const struct plist *plist, int i);
 char *plist_get_item_name (const struct plist *plist, int i);

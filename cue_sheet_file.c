@@ -22,12 +22,11 @@ int load_cue_sheet(struct plist *playlist, char *cwd, const char *file, int *err
         start_sec = 10;
         end_sec = 60;
         title = "(cue) Eyes - Angels - Track1";
-        last_added = plist_add (playlist, file_ape);
+        last_added = plist_add (playlist, NULL);
         plist_set_title_tags (playlist, last_added, title);
-        //plist_add_cue(playlist, last_added, title);
         plist_set_cue (playlist, last_added, (time_t) start_sec, (time_t) end_sec, title, file_ape);
     }       
-    
+#ifdef bur
     {
         start_sec = 60;
         end_sec = 120;
@@ -36,9 +35,10 @@ int load_cue_sheet(struct plist *playlist, char *cwd, const char *file, int *err
         plist_set_title_tags (playlist, last_added, title);
         //plist_add_cue(playlist, last_added, title);
         plist_set_cue (playlist, last_added, (time_t) start_sec, (time_t) end_sec, title, file_ape);
-    }       
+    }   
+#endif
 
-    *error_flag = 9990;
+    *error_flag = 0;
     return 2;
 }
 

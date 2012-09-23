@@ -1187,7 +1187,7 @@ static int ffmpeg_get_duration (void *prv_data)
 static void ffmpeg_get_name (const char *file, char buf[4])
 {
 	unsigned int ix;
-	char *ext;
+	const char *ext;
 
 	ext = ext_pos (file);
 	strncpy (buf, ext, 3);

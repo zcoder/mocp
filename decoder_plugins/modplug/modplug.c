@@ -242,7 +242,7 @@ static int modplug_get_duration (void *void_data)
 static void modplug_get_name (const char *file, char buf[4])
 {
   size_t ix;
-  char *ext;
+  const char *ext;
 
   ext = ext_pos (file);
   strncpy (buf, ext, 3);

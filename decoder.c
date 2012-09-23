@@ -189,7 +189,8 @@ static int find_decoder (const char *extn, const char *file, char **mime)
 static int find_type (const char *file)
 {
 	int result = -1;
-	const char *extn, *mime;
+	const char *extn;
+    char *mime;
 
 	extn = ext_pos (file);
 	mime = NULL;

@@ -2603,7 +2603,7 @@ static void entry_key_plist_save (const struct iface_key *k)
 		iface_entry_disable ();
 
 		if (text[0]) {
-			char *ext = ext_pos (text);
+			const char *ext = ext_pos (text);
 			char *file;
 
 			/* add extension if necessary */

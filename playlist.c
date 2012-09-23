@@ -233,7 +233,7 @@ int plist_add (struct plist *plist, const char *file_name)
 }
 
 /* Add items title to the rb tree. Used for cue track when adding to plist. */
-void plist_add_cue (struct plist *plist, const int pos, const char *title)
+void plist_add_cue (struct plist *plist, const plist_t_item_ix pos, const char *title)
 {
     if (title) 
     {
@@ -243,7 +243,7 @@ void plist_add_cue (struct plist *plist, const int pos, const char *title)
 }
 
 /* Set cue parameters for added item and add it to the rb tree. */
-void plist_set_cue (struct plist *plist, const int i, const time_t start_time, const time_t end_time, const char *title, const char *file_name)
+void plist_set_cue (struct plist *plist, const plist_t_item_ix i, const time_t start_time, const time_t end_time, const char *title, const char *file_name)
 {
     plist->items[i].type = F_CUE_TRACK;
     plist->items[i].stime = start_time;

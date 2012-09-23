@@ -9,6 +9,10 @@
  *
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -186,7 +190,7 @@ static size_t read_callback (void *ptr, size_t size, size_t nmemb,
 {
 	ssize_t res;
 
-	res = io_read (datasource, ptr, size * nmemb);
+	res = io_read ((io_stream* )datasource, ptr, size * nmemb);
 
 	/* libvorbisfile expects the read callback to return >= 0 with errno
 	 * set to non zero on error. */
@@ -207,7 +211,7 @@ static int seek_callback (void *datasource, ogg_int64_t offset, int whence)
 	debug ("Seek request to %ld (%s)", (long)offset,
 			whence == SEEK_SET ? "SEEK_SET"
 			: (whence == SEEK_CUR ? "SEEK_CUR" : "SEEK_END"));
-	return io_seek (datasource, offset, whence);
+	return io_seek ((io_stream* )datasource, offset, whence);
 }
 
 static int close_callback (void *datasource ATTR_UNUSED)
@@ -217,7 +221,7 @@ static int close_callback (void *datasource ATTR_UNUSED)
 
 static long tell_callback (void *datasource)
 {
-	return io_tell (datasource);
+	return io_tell ((io_stream* )datasource);
 }
 
 static void vorbis_open_stream_internal (struct vorbis_data *data)
@@ -488,3 +492,7 @@ bool vorbis_is_tremor ()
 	return false;
 #endif
 }
+
+#ifdef __cplusplus
+}
+#endif

@@ -9,6 +9,10 @@
  *
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -205,3 +209,7 @@ struct decoder *plugin_init ()
 {
 	return &sndfile_decoder;
 }
+
+#ifdef __cplusplus
+}
+#endif

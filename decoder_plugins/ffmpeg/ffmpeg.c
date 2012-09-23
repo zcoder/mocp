@@ -11,6 +11,10 @@
  *
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -167,7 +171,7 @@ static void ffmpeg_log_cb (void *data ATTR_UNUSED, int level,
 	va_copy (vlist, vl);
 	len = vsnprintf (NULL, 0, fmt, vlist);
 	va_end (vlist);
-	msg = xmalloc (len + 1);
+	msg = (char*)xmalloc (len + 1);
 	vsnprintf (msg, len + 1, fmt, vl);
 	if (len > 0 && msg[len - 1] == '\n')
 		msg[len - 1] = 0x00;
@@ -1237,3 +1241,7 @@ struct decoder *plugin_init ()
 {
 	return &ffmpeg_decoder;
 }
+
+#ifdef __cplusplus
+}
+#endif

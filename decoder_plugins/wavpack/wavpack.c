@@ -16,6 +16,9 @@
  *
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -302,3 +305,7 @@ struct decoder *plugin_init ()
 {
         return &wv_decoder;
 }
+
+#ifdef __cplusplus
+}
+#endif

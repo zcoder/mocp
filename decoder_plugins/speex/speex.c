@@ -12,6 +12,10 @@
  * and speexdec copyright by Jean-Marc Valin
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -726,3 +730,7 @@ struct decoder *plugin_init ()
 {
 	return &spx_decoder;
 }
+
+#ifdef __cplusplus
+}
+#endif

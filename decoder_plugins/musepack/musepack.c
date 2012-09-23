@@ -12,6 +12,10 @@
 /* FIXME: mpc_decoder_decode() can give fixed point values, do we have to
  * handle this case? */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -493,3 +497,7 @@ struct decoder *plugin_init ()
 {
 	return &musepack_decoder;
 }
+
+#ifdef __cplusplus
+}
+#endif

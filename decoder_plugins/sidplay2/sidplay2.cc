@@ -11,6 +11,11 @@
  * (at your option) any later version.
  *
  */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <pthread.h>
 #include <assert.h>
 
@@ -221,7 +226,7 @@ static void init_database()
   }
 }
 
-extern "C" void *sidplay2_open(const char *file)
+void *sidplay2_open(const char *file)
 {
   if(init_db)
     init_database();
@@ -318,7 +323,7 @@ extern "C" void *sidplay2_open(const char *file)
   return ((void *)s2d);
 }
 
-extern "C" void sidplay2_close(void *void_data)
+void sidplay2_close(void *void_data)
 {
   struct sidplay2_data *data = (struct sidplay2_data *)void_data;
 
@@ -335,14 +340,14 @@ extern "C" void sidplay2_close(void *void_data)
   free(data);
 }
 
-extern "C" void sidplay2_get_error (void *prv_data, struct decoder_error *error)
+void sidplay2_get_error (void *prv_data, struct decoder_error *error)
 {
   struct sidplay2_data *data = (struct sidplay2_data *)prv_data;
 
   decoder_error_copy (error, &data->error);
 }
 
-extern "C" void sidplay2_info (const char *file_name, struct file_tags *info,
+void sidplay2_info (const char *file_name, struct file_tags *info,
 		const int tags_sel)
 {
   if(init_db)
@@ -443,14 +448,14 @@ extern "C" void sidplay2_info (const char *file_name, struct file_tags *info,
  * Generic seeking can't be done because the whole audio would have to be
  * replayed until the position is reached (which would introduce a delay).
  * */
-extern "C" int sidplay2_seek (void *void_data ATTR_UNUSED, int sec ATTR_UNUSED)
+int sidplay2_seek (void *void_data ATTR_UNUSED, int sec ATTR_UNUSED)
 {
   assert (sec >= 0);
 
   return -1;
 }
 
-extern "C" int sidplay2_decode (void *void_data, char *buf, int buf_len,
+int sidplay2_decode (void *void_data, char *buf, int buf_len,
 		struct sound_params *sound_params)
 {
   struct sidplay2_data *data = (struct sidplay2_data *)void_data;
@@ -480,19 +485,19 @@ extern "C" int sidplay2_decode (void *void_data, char *buf, int buf_len,
   return data->player->play((void *)buf, buf_len);
 }
 
-extern "C" int sidplay2_get_bitrate (void *void_data ATTR_UNUSED)
+int sidplay2_get_bitrate (void *void_data ATTR_UNUSED)
 {
   return -1;
 }
 
-extern "C" int sidplay2_get_duration (void *void_data)
+int sidplay2_get_duration (void *void_data)
 {
   struct sidplay2_data *data = (struct sidplay2_data *)void_data;
 
   return data->length;
 }
 
-extern "C" void sidplay2_get_name (const char *file, char buf[4])
+void sidplay2_get_name (const char *file, char buf[4])
 {
   size_t ix;
   char *ext;
@@ -505,14 +510,14 @@ extern "C" void sidplay2_get_name (const char *file, char buf[4])
     buf[ix] = toupper (buf[ix]);
 }
 
-extern "C" int sidplay2_our_format_ext(const char *ext)
+int sidplay2_our_format_ext(const char *ext)
 {
   return
     !strcasecmp (ext, "SID") ||
     !strcasecmp (ext, "MUS");
 }
 
-extern "C" void init()
+void init()
 {
   defaultLength = options_get_int(OPT_DEFLEN);
 
@@ -528,7 +533,7 @@ extern "C" void init()
   playerIndex = POOL_SIZE-1; /* turns to 0 at first use */
 }
 
-extern "C" void destroy()
+void destroy()
 {
   pthread_mutex_destroy(&dbmutex);
 
@@ -569,9 +574,13 @@ static struct decoder sidplay2_decoder =
   NULL
 };
 
-extern "C" struct decoder *plugin_init ()
+struct decoder *plugin_init ()
 {
   pthread_mutex_init(&dbmutex, NULL);
   pthread_mutex_init(&player_select_mutex, NULL);
   return &sidplay2_decoder;
 }
+
+#ifdef __cplusplus
+}
+#endif

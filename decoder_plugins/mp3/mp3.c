@@ -17,6 +17,10 @@
  * beginning. If you hear gaps between files, it's the file's fault.
  * Can we strip this silence? */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -806,3 +810,7 @@ struct decoder *plugin_init ()
 {
 	return &mp3_decoder;
 }
+
+#ifdef __cplusplus
+}
+#endif

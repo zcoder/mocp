@@ -18,6 +18,10 @@
  *
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -349,3 +353,7 @@ struct decoder *plugin_init ()
   ModPlug_SetSettings(&settings);
   return &modplug_decoder;
 }
+
+#ifdef __cplusplus
+}
+#endif

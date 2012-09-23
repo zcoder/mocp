@@ -147,5 +147,5 @@ void init();
 #ifdef __cplusplus
   extern "C"
 #endif
-decoder *plugin_init ();
+struct decoder *plugin_init ();
 

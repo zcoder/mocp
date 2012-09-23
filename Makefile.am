@@ -4,85 +4,85 @@ AM_CPPFLAGS = -DSYSTEM_THEMES_DIR=\"$(pkgdatadir)/themes\" \
 	      -DPLUGIN_DIR=\"$(plugindir)/$(DECODER_PLUGIN_DIR)\"
 
 bin_PROGRAMS = mocp
-mocp_SOURCES = log.c \
+mocp_SOURCES = log.cpp \
 	       log.h \
 	       protocol.h \
-	       protocol.c \
-	       server.c \
+	       protocol.cpp \
+	       server.cpp \
 	       server.h \
-	       main.c \
-	       common.c \
+	       main.cpp \
+	       common.cpp \
 	       common.h \
-	       playlist.c \
+	       playlist.cpp \
 	       playlist.h \
-	       fifo_buf.c \
+	       fifo_buf.cpp \
 	       fifo_buf.h \
-	       out_buf.c \
+	       out_buf.cpp \
 	       out_buf.h \
-	       audio.c \
+	       audio.cpp \
 	       audio.h \
-	       decoder.c \
+	       decoder.cpp \
 	       decoder.h \
-	       interface.c \
+	       interface.cpp \
 	       interface.h \
-	       interface_elements.c \
+	       interface_elements.cpp \
 	       interface_elements.h \
-	       menu.c \
+	       menu.cpp \
 	       menu.h \
-	       files.c \
+	       files.cpp \
 	       files.h \
-	       options.c \
+	       options.cpp \
 	       options.h \
-	       player.c \
+	       player.cpp \
 	       player.h \
-	       cue_sheet_file.c \
+	       cue_sheet_file.cpp \
 	       cue_sheet_file.h \
-	       playlist_file.c \
+	       playlist_file.cpp \
 	       playlist_file.h \
-	       themes.c \
+	       themes.cpp \
 	       themes.h \
-	       keys.c \
+	       keys.cpp \
 	       keys.h \
-	       io.c \
+	       io.cpp \
 	       io.h \
-	       compat.c \
+	       compat.cpp \
 	       compat.h \
-	       audio_conversion.c \
+	       audio_conversion.cpp \
 	       audio_conversion.h \
-	       rbtree.c \
+	       rbtree.cpp \
 	       rbtree.h \
-	       tags_cache.c \
+	       tags_cache.cpp \
 	       tags_cache.h \
-	       utf8.c \
+	       utf8.cpp \
 	       utf8.h \
-	       rcc.c \
+	       rcc.cpp \
 	       rcc.h \
 	       audio_helper.h \
-	       audio_helper.c \
-	       softmixer.c \
+	       audio_helper.cpp \
+	       softmixer.cpp \
 	       softmixer.h \
 	       lyrics.h \
-	       lyrics.c \
+	       lyrics.cpp \
 	       lists.h \
-	       lists.c \
+	       lists.cpp \
 	       equalizer.h \
-	       equalizer.c
+	       equalizer.cpp
 EXTRA_mocp_SOURCES = gnugetopt.h \
-		     getopt.c \
-		     getopt1.c \
-		     md5.c \
+		     getopt.cpp \
+		     getopt1.cpp \
+		     md5.cpp \
 		     md5.h \
-		     null_out.c \
+		     null_out.cpp \
 		     null_out.h \
-		     sndio_out.c \
+		     sndio_out.cpp \
 		     sndio_out.h \
-		     oss.c \
+		     oss.cpp \
 		     oss.h \
-		     alsa.c \
+		     alsa.cpp \
 		     alsa.h \
-		     io_curl.c \
+		     io_curl.cpp \
 		     io_curl.h \
-		     jack.c \
+		     jack.cpp \
 		     jack.h
 man_MANS = mocp.1
 mocp_LDADD = @EXTRA_OBJS@ -lltdl

@@ -12,8 +12,8 @@ int load_cue_sheet(struct plist *playlist, char *cwd, const char *file, int *err
 {
     logit (">load_cue_sheet::%s", *file ? file : "[[NULL]]");
     
-    char *title;
-    char *file_ape = "/home/zhenka/common/zcoder/mocp/music/69 Eyes - Angels.ape";
+    const char *title;
+    const char *file_ape = "/home/zhenka/common/zcoder/mocp/music/69 Eyes - Angels.ape";
     int last_added = -1;
     time_t start_sec;
     time_t end_sec;

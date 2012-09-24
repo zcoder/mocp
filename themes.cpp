@@ -163,7 +163,7 @@ static enum color_index find_color_element_name (const char *name)
 	unsigned int i;
 	static struct
 	{
-		char *name;
+		const char *name;
 		enum color_index idx;
 	} color_tab[] = {
 		{ "background",		CLR_BACKGROUND },
@@ -221,7 +221,7 @@ static short find_color_name (const char *name)
 	unsigned int i;
 	static struct
 	{
-		char *name;
+		const char *name;
 		short color;
 	} color_tab[] = {
 		{ "black",	COLOR_BLACK },

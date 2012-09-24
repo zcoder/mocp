@@ -196,7 +196,7 @@ void lists_strs_remove (lists_t_strs *list)
 
 /* Replace the nominated string with a copy of the new one
  * and free the old one. */
-void lists_strs_replace (lists_t_strs *list, int index, char *s)
+void lists_strs_replace (lists_t_strs *list, int index, const char *s)
 {
 	char *str;
 

@@ -4392,7 +4392,7 @@ void interface_cmdline_set (int server_sock, char *arg, const int val)
 {
 	srv_sock = server_sock;
 	char *last = NULL;
-	char *tok;
+	const char *tok;
 
 	tok = strtok_r(arg, ",", &last);
 
@@ -4446,12 +4446,12 @@ void interface_cmdline_formatted_info (const int server_sock,
 		const char *format_str)
 {
 	typedef struct {
-		char *state;
+		const char *state;
 		char *file;
 		char *title;
-		char *artist;
-		char *song;
-		char *album;
+		const char *artist;
+		const char *song;
+		const char *album;
 		char *totaltime;
 		char *timeleft;
 		char *totalsec;
@@ -4584,7 +4584,7 @@ void interface_cmdline_formatted_info (const int server_sock,
 
 		if (curr_file.tags && curr_type != F_CUE_TRACK)
         {
-            char *empty = "";
+            const char *empty = "";
 			str_info.artist = curr_file.tags->artist ? curr_file.tags->artist : empty;
 			str_info.song =	curr_file.tags->title ? curr_file.tags->title : empty;
 			str_info.album = curr_file.tags->album ? curr_file.tags->album : empty;

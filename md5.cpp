@@ -99,7 +99,7 @@ set_uint32 (char *cp, uint32_t v)
 void *
 md5_read_ctx (const struct md5_ctx *ctx, void *resbuf) __THROW
 {
-  char *r = resbuf;
+  char *r = (char*)resbuf;
   set_uint32 (r + 0 * sizeof ctx->A, SWAP (ctx->A));
   set_uint32 (r + 1 * sizeof ctx->B, SWAP (ctx->B));
   set_uint32 (r + 2 * sizeof ctx->C, SWAP (ctx->C));
@@ -143,7 +143,7 @@ md5_stream (FILE *stream, void *resblock) __THROW
   struct md5_ctx ctx;
   size_t sum;
 
-  char *buffer = xmalloc (BLOCKSIZE + 72);
+  char *buffer = (char*)xmalloc (BLOCKSIZE + 72);
   if (!buffer)
     return 1;
 
@@ -311,7 +311,7 @@ void
 md5_process_block (const void *buffer, size_t len, struct md5_ctx *ctx) __THROW
 {
   uint32_t correct_words[16];
-  const uint32_t *words = buffer;
+  const uint32_t *words = (uint32_t *)buffer;
   size_t nwords = len / sizeof (uint32_t);
   const uint32_t *endp = words + nwords;
   uint32_t A = ctx->A;

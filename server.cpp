@@ -1500,8 +1500,8 @@ static void handle_command (const int client_id)
 			audio_stop ();
 			break;
 		case CMD_GET_CTIME:
-			//if (!send_vtime(cli))
-            if (!send_data_int(cli, audio_get_time()))
+			if (!send_vtime(cli))
+            //if (!send_data_int(cli, audio_get_time()))
 				err = 1;
 			break;
 		case CMD_SEEK:

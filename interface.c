@@ -4280,8 +4280,8 @@ void interface_cmdline_formatted_info (const int server_sock,
 			snprintf(time_sec_str, 5, "%d", curr_file.tags->time);
 
 		snprintf(curr_time_sec_str, 5, "%d", curr_file.curr_time);
-		snprintf(file_bitrate_str, 4, "%d", MAX(curr_file.bitrate, 0));
-		snprintf(file_rate_str, 3, "%d", curr_file.rate);
+		snprintf(file_bitrate_str, 6, "%d", MAX(curr_file.bitrate, 0));
+		snprintf(file_rate_str, 6, "%d", curr_file.rate);
 	}
 
 	str = str_repl(str, "%state", str_info.state);
